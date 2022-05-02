@@ -1,7 +1,6 @@
-import {authenticationService} from '../service/authentication.service'
+import {authenticationService} from '../services/auth.service'
 
 export function authHeader(){
-    // Add authService
     const currentUser = authenticationService.currentUserValue;
 
     if (currentUser && currentUser.token){

@@ -1,4 +1,4 @@
-import {authenticationService} from "../service/authentication.service"
+import {authenticationService} from "../services/auth.service"
 
 export function handleResponse(response){
     return response.text().then(text => {
@@ -12,7 +12,7 @@ export function handleResponse(response){
             const error = (data && data.message) || response.statusText;
             return Promise.reject(error);
         }
-    
-    return data;
+
+        return data;
     });
 }
