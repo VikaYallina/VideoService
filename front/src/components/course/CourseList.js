@@ -16,6 +16,7 @@ import {removeLecture} from "../../actions/lecture.action";
 import DeleteIcon from "@mui/icons-material/Delete";
 import PropTypes from "prop-types";
 import CourseCard from "./CourseCard";
+import {Masonry} from "@mui/lab";
 
 const CourseList = (props) => {
     const [courseList, setCourseList] = useState([])
@@ -39,9 +40,12 @@ const CourseList = (props) => {
 
     return (
         <Box sx={{ display:'flex' }}>
+            <Masonry
+                columns={4}
+            >
             {(courseList && courseList.length > 0) ?
                 courseList.map((val, index) => (
-                    <CourseCard course={val} isInChooser={false} />
+                    <CourseCard course={val} isInChooser={false} key={val.id} />
                     // <Card key={val.id} sx={{ display: 'flex' }}>
                     //     <CardActionArea onClick={() => props.history.push(`/course/${val.id}`)}>
                     //         <CardHeader
@@ -80,6 +84,7 @@ const CourseList = (props) => {
                     // </Card>
                 ))
                 : (<Typography variant={"h4"}>Записи отсутсвуют</Typography>)}
+            </Masonry>
             { !props.showChooserAction && (
                 <Button onClick={(e) => {
                     httpCommon.post("/api/course",{})

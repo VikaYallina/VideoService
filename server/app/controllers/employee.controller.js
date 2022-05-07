@@ -28,14 +28,25 @@ exports.create = (req, res) => {
 exports.findAll = (req, res) => {
     const department = req.query.department;
     const lastname = req.query.lastname;
+    const showProgress = req.query.progress;
+
     let condition = lastname ? { lastname: {[Op.iLike]: `%${lastname}%`}} : {};
     department ? condition["depId"] = department : null;
 
+    let include = [{
+        association: Employee.department
+    }]
+    showProgress && include.push({
+        model: db.course_progress,
+        include:{
+            model: db.course_data,
+            as:"courseData"
+        }
+    })
+
   Employee.findAll({
       where: condition,
-      include: [{
-          association: Employee.department
-      }]
+      include
   })
     .then(data => {
         res.send(data);

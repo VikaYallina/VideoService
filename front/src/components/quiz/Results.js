@@ -3,6 +3,7 @@ import {connect, useSelector} from "react-redux";
 import {Link, useLocation} from "react-router-dom";
 import {Card, ListGroup} from "react-bootstrap";
 import httpCommon from "../../http-common";
+import {Dialog} from "@mui/material";
 
 const QuizResult = (props) => {
 
@@ -82,6 +83,8 @@ const mapStateToProps = (state, ownProps) => {
     }
     return {result}
 }
+
+
 
 // export default connect(mapStateToProps)(QuizResult)
 export default QuizResult

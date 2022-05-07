@@ -132,7 +132,7 @@ const QuizList = (props) => {
                 <TabPanel value={"video"}>
                     <Box>
                         {(vList && vList.length > 0) ? vList.map(v => (
-                            <VideoCard video={v} key={v.id} />
+                            <VideoCard video={v} key={v.id} showActions={true}/>
                             // <Card key={v.id} sx={{ display: 'flex' }}>
                             //     <CardActionArea onClick={(e) => {
                             //         props.history.push(`/video/${v.id}`)

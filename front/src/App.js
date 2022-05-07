@@ -23,6 +23,8 @@ import CourseList from "./components/course/CourseList";
 import CourseView from "./components/course/CourseView";
 import CourseEdit from "./components/course/CourseEdit";
 import CourseChooser from "./components/course/CourseChooser";
+import ResultList from "./components/result/ResultList";
+import EmployeeResult from "./components/result/EmployeeResult";
 
 
 
@@ -132,6 +134,8 @@ function App() {
                             <Route path={"/video/edit/:id"} component={VideoEdit} />
                             <Route path={"/video/:id"} component={VideoView}/>
 
+                            <Route path={"/course/result/e"} component={EmployeeResult} />
+                            <Route path={"/course/result"} component={ResultList} />
                             <Route path={"/course/:id/edit"} component={CourseEdit} />
                             <Route path={"/course/choose"} component={CourseChooser} />
                             <Route path={"/course/:id"} component={CourseView} />

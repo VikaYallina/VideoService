@@ -177,6 +177,7 @@ const CourseChooser = (props) => {
                         id: val.id,
                         stepIndex: i,
                         completed: false,
+                        bestResult:0,
                         bestResultId:null,
                         total:null,
                         totalTriesNo:null,
@@ -207,6 +208,7 @@ const CourseChooser = (props) => {
             courseId: courseData.course.id,
             completionRate:0.0,
             completed: new Array(courseData.course.steps.length).fill(false),
+            status:"NOT_STARTED",
             quiz: quiz,
             video: video,
             lecture: lecture

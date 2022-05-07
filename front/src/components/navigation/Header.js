@@ -14,7 +14,8 @@ const tabValues = [
     "/add",
     "/course",
     "/course/1/edit",
-    "/course/choose"
+    "/course/choose",
+    "/course/result"
 ]
 
 function Header(props) {
@@ -112,6 +113,7 @@ function Header(props) {
                     <Tab label="Courses" value={tabValues[2]}/>
                     <Tab label="Course Edit" value={tabValues[3]}/>
                     <Tab label="Course Choose" value={tabValues[4]}/>
+                    <Tab label="C Result" value={tabValues[5]} />
                 </Tabs>
             </AppBar>
         </React.Fragment>

@@ -13,10 +13,18 @@ exports.findAll = (req, res) => {
     let emplId = req.query.employee
     let courseId = req.query.course
     let condition = {}
-    emplId ? condition["emplId"]=emplId : null
+    emplId ? condition["employeeId"]=emplId : null
     courseId ? condition["courseId"]=courseId : null
 
-    CourseProgression.findAll({where: condition})
+    CourseProgression.findAll(
+        {
+            where: condition,
+            include:{
+                model: db.course_data,
+                as:"courseData"
+            }
+        }
+    )
         .then(data => res.send(data))
         .catch(err => res.status(500).send(err))
 }

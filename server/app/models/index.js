@@ -88,9 +88,17 @@ db.employee.belongsToMany(db.course_data, {
 })
 
 db.course_data.belongsToMany(db.employee, {
-    through:db.course_progress,
-    foreignKey: "courseId"
+    through:db.course_progress
 })
+db.employee.hasMany(db.course_progress)
+db.course_progress.belongsTo(db.employee)
+
+db.course_data.hasMany(db.course_progress)
+db.course_progress.belongsTo(db.course_data, {foreignKey:"courseId", as:"courseData"})
+
+
+
+
 
 db.quiz.hasMany(db.quiz_result,{
     foreignKey: "quizId"

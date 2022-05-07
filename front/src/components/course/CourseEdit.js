@@ -101,16 +101,12 @@ const CourseEdit = (props) => {
     };
 
     const [courseSteps, setCourseSteps] = useState([])
-    const [employeeData, setEmployeeData] = useState([])
     const [courseData, setCourseData] = useState({})
 
     const saveCourseStepsChange = (data) => {
         setCourseSteps(data)
     }
 
-    const saveEmployeeData = (data) => {
-        setEmployeeData(data)
-    }
 
     const saveCourseData = (data) => {
         setCourseData(data)
@@ -123,11 +119,12 @@ const CourseEdit = (props) => {
             steps: courseSteps.map(val => {
                 return {
                     id: val.id,
-                    type: val.type
+                    type: val.type,
+                    title: val.title ? val.title : ""
                 }
             })
         }
-        httpCommon.put(`/api/course/${lastCourseData}`, course)
+        httpCommon.put(`/api/course/${lastCourseData.id}`, course)
             .then(res => {
                 props.history.push("/course")
             })
@@ -140,8 +137,6 @@ const CourseEdit = (props) => {
         switch (activeStep){
             case 0:
                 return (<DndList props={props} savedData={courseSteps} saveCourseSteps={saveCourseStepsChange}/>)
-            // case 1:
-            //     return (<CourseChooseEmployee props={props} employeeData={employeeData} saveEmployeeData={saveEmployeeData}/>)
             case 1:
                 return (<CourseDataComponent props={props} courseData={courseData} saveCourseData={saveCourseData}/>)
             default:
@@ -171,16 +166,6 @@ const CourseEdit = (props) => {
                 })}
             </Stepper>
             {activeStep === steps.length ? saveChanges()
-
-                // <React.Fragment>
-                //     <Typography sx={{ mt: 2, mb: 1 }}>
-                //         All steps completed - you&apos;re finished
-                //     </Typography>
-                //     <Box sx={{ display: 'flex', flexDirection: 'row', pt: 2 }}>
-                //         <Box sx={{ flex: '1 1 auto' }} />
-                //         <Button onClick={handleReset}>Reset</Button>
-                //     </Box>
-                // </React.Fragment>
              : (
                 <React.Fragment>
                     {renderComponent()}
@@ -221,6 +206,13 @@ const CourseDataComponent = (props) => {
         desc && setCourseDesc(desc)
     },[])
 
+    useEffect(() => {
+        if (props.courseData){
+            setCourseTitle(props.courseData.title)
+            setCourseDesc(props.courseData.desc)
+        }
+    },[props])
+
     return(
         <Box component="form"
              sx={{
@@ -235,6 +227,10 @@ const CourseDataComponent = (props) => {
                     value={courseTitle}
                     onChange={(e) => {
                         setCourseTitle(e.target.value)
+                        props.saveCourseData({
+                            title: e.target.value,
+                            desc: courseDesc
+                        })
                     }}
                 />
                 <TextField
@@ -244,30 +240,16 @@ const CourseDataComponent = (props) => {
                     value={courseDesc}
                     onChange={(e) => {
                         setCourseDesc(e.target.value)
+                        props.saveCourseData({
+                            title: courseTitle,
+                            desc: e.target.value
+                        })
                     }}
                 />
         </Box>
     )
 }
 
-const ListData = [
-    {
-        id:1,
-        type: "lecture"
-    },
-    {
-        id:3,
-        type:"video"
-    },
-    {
-        id:2,
-        type:"video"
-    },
-    {
-        id: 3,
-        type:"quiz"
-    }
-]
 
 const DndList = (props) => {
     const [data, setData] = useState([])
@@ -288,6 +270,10 @@ const DndList = (props) => {
     useEffect(() => {
         props.savedData && setData(prepareData(props.savedData))
     }, [props])
+
+    useEffect(() => {
+        console.log(data)
+    }, [data])
 
 
     const prepareData = (data) => {
@@ -313,15 +299,16 @@ const DndList = (props) => {
             return
         }
 
+        let copyState = []
         setData(state => {
             const sourceData = state[source.index]
-            let copyState = Array.from(state)
+            copyState = Array.from(state)
             copyState.splice(source.index, 1)
             copyState.splice(destination.index, 0, sourceData)
-            props.saveCourseSteps(copyState)
 
             return copyState
         })
+        props.saveCourseSteps(copyState)
     }
 
     // useEffect(()=> {
@@ -333,19 +320,21 @@ const DndList = (props) => {
     }
 
     const getChildData = (childData) => {
+        console.log("CHILS", childData)
         const uuid = getUuidByString(JSON.stringify({id: childData.id, type:childData.type}))
         let f = data.find(val => val.uuid === uuid)
         console.log(f)
         if (!f){
+            let copyArray = []
             setData(state => {
-                const copyArray = Array.from(state)
+                copyArray = Array.from(state)
                 copyArray.push({
                     ...childData,
                     uuid
                 })
-                props.saveCourseSteps(copyArray)
                 return copyArray
             })
+            props.saveCourseSteps(copyArray)
         }
     }
 
@@ -413,14 +402,15 @@ const DndList = (props) => {
                                                         // {...provided1.dragHandleProps}
                                                     >
                                                         <CardHeader
-                                                            title={`${index+1}. ${val.type}`}
+                                                            title={`${index+1}. ${val.type} - ${val.title}`}
                                                             action={
                                                                 <IconButton onClick={() => {
+                                                                    let copy = []
                                                                     setData(state => {
-                                                                        let copy = state.filter((val, i) => i !== index)
-                                                                        props.saveCourseSteps(copy)
+                                                                        copy = state.filter((val, i) => i !== index)
                                                                         return copy
                                                                     })
+                                                                    props.saveCourseSteps(copy)
                                                                 }}>
                                                                     <RemoveCircleIcon sx={{color:"#c92222"}}/>
                                                                 </IconButton>}

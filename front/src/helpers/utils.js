@@ -50,3 +50,54 @@ export const millis2time = (millis) => {
 
     return [min_str,sec_str].join("")
 }
+
+export const generateCourseResult = (courseData) => {
+    const video = []
+    const lecture = []
+    const quiz = []
+
+    courseData.steps && courseData.steps.forEach((val, i) => {
+        switch (val.type) {
+            case "quiz":
+                quiz.push({
+                    id: val.id,
+                    stepIndex: i,
+                    completed: false,
+                    bestResult:0,
+                    bestResultId:null,
+                    total:null,
+                    totalTriesNo:null,
+                    results:[]
+                })
+                break
+            case "lecture":
+                lecture.push({
+                    id:val.id,
+                    stepIndex: i,
+                    completed: false
+                })
+                break
+            case "video":
+                video.push({
+                    id:val.id,
+                    stepIndex: i,
+                    completed: false
+                })
+                break
+            default:
+                break;
+        }
+    })
+
+    let result = {
+        employeeId: null,
+        courseId: courseData.id,
+        completionRate:0.0,
+        completed: new Array(courseData.steps.length).fill(false),
+        quiz: quiz,
+        video: video,
+        lecture: lecture
+    }
+
+    return result
+}
