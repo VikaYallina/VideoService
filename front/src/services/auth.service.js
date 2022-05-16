@@ -2,6 +2,7 @@ import { BehaviorSubject } from 'rxjs';
 
 import { handleResponse } from '../helpers/handle-response';
 import httpCommon from "../http-common";
+import {getRole} from "../helpers/utils";
 
 const currentUserSubject = new BehaviorSubject(JSON.parse(localStorage.getItem('currentUser')));
 
@@ -12,14 +13,16 @@ export const authenticationService = {
     get currentUserValue() {return currentUserSubject.value}
 }
 
-function login(username, password){
-    const body = JSON.stringify({username, password})
+function login(email, password){
+    console.log("here")
+    const body = JSON.stringify({email, password})
 
-    httpCommon.post(`/users/authenticate`, body)
+    return httpCommon.post(`/api/auth/signin`, body)
         .then(handleResponse)
         .then(user => {
-            localStorage.setItem('currentUser', JSON.stringify(user));
+            localStorage.setItem('currentUser', JSON.stringify({...user, roles: user.roles.map(val => getRole(val))}));
             currentUserSubject.next(user);
+            console.log(user)
 
             return user;
         })

@@ -1,15 +1,16 @@
 import httpCommon from "../http-common";
+import {handleResponse} from "../helpers/handle-response";
 
 const baseUrl = "/api/employee"
 const getAll = () => {
-    return httpCommon.get(baseUrl + "/")
+    return httpCommon.get(baseUrl + "/").then(handleResponse)
 }
 
 const get = id => {
     return httpCommon.get(baseUrl+`/${id}`);
 };
 const create = data => {
-    return httpCommon.post(baseUrl+"/", data);
+    return httpCommon.post("/api/auth/signup", data);
 };
 const update = (id, data) => {
     return httpCommon.put(baseUrl+`/${id}`, data);

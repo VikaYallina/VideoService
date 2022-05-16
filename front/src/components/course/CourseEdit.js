@@ -4,8 +4,8 @@ import {
     Button,
     Card,
     CardActions,
-    CardHeader, IconButton,
-    Paper,
+    CardHeader, FormControl, IconButton, InputLabel, MenuItem,
+    Paper, Select,
     Step,
     StepLabel,
     Stepper,
@@ -20,8 +20,8 @@ import {retrieveAllQuiz} from "../../actions/quiz.action";
 import {retrieveAllLecture} from "../../actions/lecture.action";
 import {retrieveVideos} from "../../actions/video.action";
 import {TabContext, TabList, TabPanel} from "@mui/lab";
-import QuizCard from "../quiz/QuizCard";
-import LectureCard from "../lecture/LectureCard";
+import QuizCard from "../quiz/component/QuizCard";
+import LectureCard from "../lecture/component/LectureCard";
 import VideoCard from "../video/VideoCard";
 import httpCommon from "../../http-common";
 
@@ -117,11 +117,16 @@ const CourseEdit = (props) => {
             title: courseData.title,
             desc:courseData.desc,
             steps: courseSteps.map(val => {
-                return {
+                let newData = {
                     id: val.id,
                     type: val.type,
                     title: val.title ? val.title : ""
                 }
+                if (val.type === "quiz"){
+                    newData["totalTries"] = val.totalTries
+                }
+
+                return newData
             })
         }
         httpCommon.put(`/api/course/${lastCourseData.id}`, course)
@@ -328,15 +333,26 @@ const DndList = (props) => {
             let copyArray = []
             setData(state => {
                 copyArray = Array.from(state)
-                copyArray.push({
+                let newData = {
                     ...childData,
                     uuid
-                })
+                }
+                if (childData.type === "quiz"){
+                    newData["totalTries"] = 1
+                }
+                copyArray.push(newData)
                 return copyArray
             })
             props.saveCourseSteps(copyArray)
         }
     }
+
+    // const handleChange = (event) => {
+    //     const {name, value} = event.target
+    //     setData(state => {
+    //         let copy = [...state]
+    //     })
+    // }
 
     return (
         <Box sx={{ display:'flex', flexDirection:'row'}}>
@@ -403,6 +419,44 @@ const DndList = (props) => {
                                                     >
                                                         <CardHeader
                                                             title={`${index+1}. ${val.type} - ${val.title}`}
+                                                            subheader={
+                                                                (val.type === "quiz") && (
+                                                                    <Box>
+                                                                        <FormControl sx={{ m: 1, minWidth: 120 }} size="small">
+                                                                            <InputLabel id="demo-select-small">Кол-во попыток</InputLabel>
+                                                                            <Select
+                                                                                labelId="select-try"
+                                                                                id="select-try-id"
+                                                                                value={val.totalTries || 1}
+                                                                                label="Попытка"
+                                                                                name={"totalTries"}
+                                                                                onChange={(event) => {
+                                                                                    const newVal = event.target.value
+                                                                                    setData(state => {
+                                                                                        let copy = [...state]
+                                                                                        copy[index].totalTries = newVal
+                                                                                        return copy
+                                                                                    })
+                                                                                }}
+                                                                            >
+                                                                                <MenuItem value={1}>1</MenuItem>
+                                                                                <MenuItem value={2}>2</MenuItem>
+                                                                                <MenuItem value={3}>3</MenuItem>
+                                                                                <MenuItem value={4}>4</MenuItem>
+                                                                                <MenuItem value={5}>5</MenuItem>
+                                                                            </Select>
+                                                                        </FormControl>
+                                                                        <TextField
+                                                                            id="outlined-number"
+                                                                            label="Number"
+                                                                            type="number"
+                                                                            InputLabelProps={{
+                                                                                shrink: true,
+                                                                            }}
+                                                                        />
+                                                                    </Box>
+                                                                )
+                                                            }
                                                             action={
                                                                 <IconButton onClick={() => {
                                                                     let copy = []

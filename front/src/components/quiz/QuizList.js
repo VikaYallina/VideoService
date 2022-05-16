@@ -22,8 +22,8 @@ import {TabPane} from "react-bootstrap";
 import {TabContext, TabList, TabPanel} from "@mui/lab";
 import {addVideo, removeVideo, retrieveVideos} from "../../actions/video.action";
 import VideoCard from "../video/VideoCard";
-import LectureCard from "../lecture/LectureCard";
-import QuizCard from "./QuizCard";
+import LectureCard from "../lecture/component/LectureCard";
+import QuizCard from "./component/QuizCard";
 
 const QuizList = (props) => {
     // const [qList, setQlist] = useState([])
@@ -71,30 +71,10 @@ const QuizList = (props) => {
                         <Tab value="video" label={"Video"}/>
                     </TabList>
                 </Box>
-                {/*<Stack direction="row" spacing={2} justifyContent="space-evenly">*/}
                 <TabPanel value="quiz">
                     <Box>
                         {(qList && qList.length > 0) ? qList.map(q => (
                             <QuizCard key={q.id} quiz={q} showActions={true} />
-                            // <Card key={q.id}>
-                            //     <CardActionArea onClick={(e) => {
-                            //         props.history.push(`/quiz/${q.id}`)
-                            //     }}>
-                            //         <CardHeader title={q.title ? q.title : "Без названия"}
-                            //                     titleTypographyProps={q.title ? {} : {color: "lightgray"}}/>
-                            //         <CardContent>
-                            //             <Typography variant={"subtitle1"}>{q.desc ? q.desc : "Описание отсутсвует"}</Typography>
-                            //         </CardContent>
-                            //     </CardActionArea>
-                            //     <CardActions>
-                            //         <IconButton onClick={(e) => {
-                            //             props.history.push(`/quiz/edit/${q.id}`)
-                            //         }}><EditIcon/></IconButton>
-                            //         <IconButton onClick={(e) => {
-                            //             dispatch(removeQuiz(q.id))
-                            //         }}><DeleteIcon/></IconButton>
-                            //     </CardActions>
-                            // </Card>
                         )) : (<Typography variant="h6">Записи отсутсвуют</Typography>)
                         }
                         <Button onClick={handleCreateQuiz}>Создать</Button>
@@ -104,27 +84,6 @@ const QuizList = (props) => {
                     <Box>
                         {(lList && lList.length > 0) ? lList.map(l => (
                             <LectureCard key={l.id} lecture={l} showActions={true}/>
-                            // <Card key={l.id}>
-                            //     <CardActionArea onClick={(e) => {
-                            //         props.history.push(`/lect/${l.id}`)
-                            //     }}>
-                            //         <CardHeader
-                            //             title={l.title ? l.title : "Без названия"}
-                            //             titleTypographyProps={l.title ? {} : {color: "lightgray"}}
-                            //         />
-                            //         <CardContent>
-                            //             <Typography variant={"subtitle1"}>{l.desc ? l.desc : "Описание отсутсвует"}</Typography>
-                            //         </CardContent>
-                            //     </CardActionArea>
-                            //     <CardActions>
-                            //         <IconButton onClick={(e) => {
-                            //             props.history.push(`/lect/edit/${l.id}`)
-                            //         }}><EditIcon/></IconButton>
-                            //         <IconButton onClick={(e) => {
-                            //             dispatch(removeLecture(l.id))
-                            //         }}><DeleteIcon/></IconButton>
-                            //     </CardActions>
-                            // </Card>
                         )) : (<Typography variant="h6">Записи отсутсвуют</Typography>)}
                         <Button onClick={handleCreateLect}>Создать</Button>
                     </Box>
@@ -133,36 +92,6 @@ const QuizList = (props) => {
                     <Box>
                         {(vList && vList.length > 0) ? vList.map(v => (
                             <VideoCard video={v} key={v.id} showActions={true}/>
-                            // <Card key={v.id} sx={{ display: 'flex' }}>
-                            //     <CardActionArea onClick={(e) => {
-                            //         props.history.push(`/video/${v.id}`)
-                            //     }}>
-                            //         <Box sx={{ display:'flex', flexDirection: 'row'}}>
-                            //             <CardMedia
-                            //                 component="img"
-                            //                 src={`http://localhost:8080/api/video/${v.id}/thumb`}
-                            //                 height={'144'}
-                            //                 sx={{ width: '50%'}}
-                            //             />
-                            //             <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                            //                 <CardHeader title={v.title ? v.title : "Без названия"}
-                            //                             titleTypographyProps={v.title ? {} : {color: "lightgray"}}/>
-                            //                 <CardContent>
-                            //                     <Typography variant={"subtitle1"}>{v.desc ? v.desc : "Описание отсутсвует"}</Typography>
-                            //                 </CardContent>
-                            //             </Box>
-                            //         </Box>
-                            //     </CardActionArea>
-                            //     <CardActions>
-                            //         <IconButton onClick={(e) => {
-                            //             props.history.push(`/video/edit/${v.id}`)
-                            //         }}><EditIcon/></IconButton>
-                            //         <IconButton onClick={(e) => {
-                            //             dispatch(removeVideo(v.id))
-                            //                 .catch(err => console.log(err))
-                            //         }}><DeleteIcon/></IconButton>
-                            //     </CardActions>
-                            // </Card>
                         )) : (<Typography variant="h6">Записи отсутсвуют</Typography>)
                         }
                         <Button onClick={handleCreateVideo}>Создать</Button>

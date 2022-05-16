@@ -25,12 +25,14 @@ export const retrieveEmployees = () => async (dispatch) => {
         const res = await EmployeeService.getAll();
         dispatch({
             type: RETRIEVE_EMPLOYEES,
-            payload: res.data,
+            payload: res,
         });
     } catch (err) {
         console.log(err);
     }
 };
+
+
 export const updateEmployee = (id, data) => async (dispatch) => {
     try {
         const res = await EmployeeService.update(id, data);

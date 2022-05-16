@@ -1,4 +1,3 @@
-import config from 'config';
 import { authHeader } from '../helpers/auth-header';
 import { handleResponse } from '../helpers/handle-response';
 import httpCommon from "../http-common";

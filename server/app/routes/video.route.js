@@ -1,5 +1,3 @@
-const video = require("../controllers/video.controller");
-const multer = require('../utils/multer')
 module.exports = function(app) {
     const fs = require('fs')
     const video = require('../controllers/video.controller');

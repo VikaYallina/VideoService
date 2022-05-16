@@ -15,7 +15,7 @@ import EditIcon from "@mui/icons-material/Edit";
 import {removeLecture} from "../../actions/lecture.action";
 import DeleteIcon from "@mui/icons-material/Delete";
 import PropTypes from "prop-types";
-import CourseCard from "./CourseCard";
+import CourseCard from "./component/CourseCard";
 import {Masonry} from "@mui/lab";
 
 const CourseList = (props) => {
@@ -33,58 +33,15 @@ const CourseList = (props) => {
 
     useEffect(()=>{
         props.courseList && setCourseList(props.courseList)
-        // if (chosenCourses.length === 0){
-        //     setChosenCourses(props.parentData)
-        // }
     },[props])
 
     return (
-        <Box sx={{ display:'flex' }}>
-            <Masonry
-                columns={4}
-            >
+        <Box >
             {(courseList && courseList.length > 0) ?
                 courseList.map((val, index) => (
                     <CourseCard course={val} isInChooser={false} key={val.id} />
-                    // <Card key={val.id} sx={{ display: 'flex' }}>
-                    //     <CardActionArea onClick={() => props.history.push(`/course/${val.id}`)}>
-                    //         <CardHeader
-                    //             title={val.title ? val.title : "Без названия"}
-                    //             titleTypographyProps={val.title ? {} : {color: "lightgray"}}
-                    //         />
-                    //         <CardContent>
-                    //             <Typography variant={"subtitle1"}>{val.desc ? val.desc : "Описание отсутсвует"}</Typography>
-                    //         </CardContent>
-                    //     </CardActionArea>
-                    //
-                    //     {props.showChooserAction ?
-                    //         (<CardActions>
-                    //             <Checkbox
-                    //                 checked={chosenCourses[index] ? chosenCourses[index].checked : false}
-                    //                 onChange={() => {
-                    //                     setChosenCourses(arr => {
-                    //                         let copy = [...arr]
-                    //                         copy[index].checked = !arr[index].checked
-                    //                         return copy
-                    //                     })
-                    //                 }}
-                    //                 color="success"
-                    //             />
-                    //         </CardActions>)
-                    //         :
-                    //         (<CardActions>
-                    //             <IconButton onClick={(e) => {
-                    //                 props.history.push(`/course/edit/${val.id}`)
-                    //             }}><EditIcon/></IconButton>
-                    //             <IconButton onClick={(e) => {
-                    //                 // dispatch(removeLecture(course.id))
-                    //             }}><DeleteIcon/></IconButton>
-                    //         </CardActions>)
-                    //         }
-                    // </Card>
                 ))
                 : (<Typography variant={"h4"}>Записи отсутсвуют</Typography>)}
-            </Masonry>
             { !props.showChooserAction && (
                 <Button onClick={(e) => {
                     httpCommon.post("/api/course",{})
@@ -106,5 +63,7 @@ CourseList.propTypes = {
     parentData: PropTypes.array,
     courseList: PropTypes.array
 }
+
+
 
 export default CourseList

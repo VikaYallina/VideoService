@@ -4,7 +4,7 @@ const CourseProgression = db.course_progress
 exports.create = (req, res) => {
     let body = req.body
     // body = !Array.isArray(body) && [body]
-    CourseProgression.bulkCreate(body,{ignoreDuplicates:true})
+    CourseProgression.bulkCreate(body,{updateOnDuplicate: ["id"] })
         .then(data => res.send(data))
         .catch(err => res.status(500).send({message: err}))
 }

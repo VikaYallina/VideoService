@@ -3,13 +3,14 @@ import {Box, Button, Step, StepButton, Stepper, Typography} from "@mui/material"
 import CourseList from "./CourseList";
 import CourseChooseEmployee from "./CourseChooseEmployee";
 import httpCommon from "../../http-common";
-import CourseCard from "./CourseCard";
+import CourseCard from "./component/CourseCard";
+import {connect} from "react-redux";
 
 const steps = ['Select campaign settings', 'Create an ad group'];
 
 const CourseChooser = (props) => {
 
-    const userId = 1
+    const { auth } = props
 
     const [activeStep, setActiveStep] = React.useState(0);
     const [completed, setCompleted] = React.useState({});
@@ -18,7 +19,7 @@ const CourseChooser = (props) => {
     const [courseList, setCourseList] = useState([])
 
     useEffect( () => {
-        httpCommon.get(`/api/employee/dept/${userId}`)
+        httpCommon.get(`/api/employee/dept/${auth.user.employeeId}`)
             .then((res) => {
                 let data = res.data ? res.data : null
                 data && data.forEach(val => {
@@ -140,31 +141,7 @@ const CourseChooser = (props) => {
     const formIsValid = () => {
         return true
     }
-    // "userId":"dec20f5d-31a3-4619-989c-2a6a031cd818",
-    //     "courseId":1,
-    //     "completionRate":2.3,
-    //     "completed":[true, true, false],
-    //     "quiz":[{
-    //     "id":2,
-    //     "stepIndex":2,
-    //     "completed":false,
-    //     "bestResultId":1,
-    //     "total":7,
-    //     "totalTriesNo":3,
-    //     "results":[{
-    //         "id":1
-    //     }]
-    // }],
-    //     "lecture":[{
-    //     "id":1,
-    //     "stepIndex":0,
-    //     "completed":true
-    // }],
-    //     "video":[{
-    //     "id":"66be3ce8-4890-4632-b475-a72938d60c2f",
-    //     "stepIndex":1,
-    //     "completed":true
-    // }]
+
     const generateResult = (courseData) => {
         const video = []
         const lecture = []
@@ -180,7 +157,7 @@ const CourseChooser = (props) => {
                         bestResult:0,
                         bestResultId:null,
                         total:null,
-                        totalTriesNo:null,
+                        totalTriesNo:val.totalTries ? val.totalTries : 1,
                         results:[]
                     })
                     break
@@ -217,13 +194,18 @@ const CourseChooser = (props) => {
         return result
     }
 
+    useEffect(() => {
+        console.log("CHOSEN ONE",chosenCourses)
+    }, [chosenCourses])
+
     const saveChanges = () => {
         if (formIsValid()){
             const resultSend = []
-            chosenCourses.forEach((course) => {
+            let chosen = chosenCourses.filter(val => val.checked)
+
+            chosen.forEach((course) => {
                 let res = generateResult(course)
                 for (let i=0; i<chosenEmpl.length; i++){
-                    // res["employeeId"] = chosenEmpl[i]
                     resultSend.push({...res, employeeId: chosenEmpl[i]})
                 }
             })
@@ -303,4 +285,9 @@ const CourseChooser = (props) => {
     );
 }
 
-export default CourseChooser
+const mapStateToProps = (state) => {
+    const auth = state.currentUser
+    return {auth}
+}
+
+export default connect(mapStateToProps)(CourseChooser)

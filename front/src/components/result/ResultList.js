@@ -21,7 +21,8 @@ import * as PropTypes from "prop-types";
 import ClearIcon from '@mui/icons-material/Clear';
 import CheckIcon from '@mui/icons-material/Check';
 import {generateCourseResult} from "../../helpers/utils";
-import CourseCard from "../course/CourseCard";
+import CourseCard from "../course/component/CourseCard";
+import {connect} from "react-redux";
 
 
 const ExpandMore = styled((props) => {
@@ -69,7 +70,7 @@ CircularProgressWithLabel.propTypes = {
 };
 
 const ResultList = (props) => {
-    const managerId = 1
+    const {user} = props
 
     const [emplList, setEmplList] = useState([])
     const [departments, setDepartments] = useState([])
@@ -78,7 +79,7 @@ const ResultList = (props) => {
 
 
     useEffect(() => {
-        httpCommon.get(`/api/employee/dept/${managerId}`)
+        httpCommon.get(`/api/employee/dept/${user.employeeId}`)
             .then(res => {
                 const depts = res.data
                 if (depts){
@@ -533,4 +534,9 @@ const CourseChooseDialog = (props) => {
     )
 }
 
-export default ResultList
+const mapStateToProps = (state) => {
+    const { user } = state.currentUser
+    return {user}
+}
+
+export default connect(mapStateToProps)(ResultList)

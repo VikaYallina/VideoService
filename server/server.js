@@ -77,6 +77,7 @@ require('./app/routes/course.route')(app)
 require('./app/routes/quiz_result.route')(app)
 require('./app/routes/course_progress.route')(app)
 require('./app/routes/department.route')(app)
+require('./app/routes/review.route')(app)
 
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, () =>{

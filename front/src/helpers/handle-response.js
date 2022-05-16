@@ -1,18 +1,19 @@
 import {authenticationService} from "../services/auth.service"
 
-export function handleResponse(response){
-    return response.text().then(text => {
-        const data = text && JSON.parse(text);
-        if (!response.ok){
-            if ([401, 403].indexOf(response.status) !== -1){
-                authenticationService.logout();
-                window.location.reload(true);
-            }
+export function handleResponse(response) {
+    const data = response.data
+    console.log(data)
 
-            const error = (data && data.message) || response.statusText;
-            return Promise.reject(error);
+    if (!(response.status === 200)) {
+        console.log("HHHE")
+        if ([401, 403].indexOf(response.status) !== -1) {
+            authenticationService.logout();
+            window.location.reload(true);
         }
 
-        return data;
-    });
+        const error = (data && data.message) || response.statusText;
+        return Promise.reject(error);
+    }
+
+    return data;
 }

@@ -6,13 +6,14 @@ import ResultReducer from "./result.reducer";
 import UserReducer from "./user.reducer";
 import LectureReducer from "./lecture.reducer";
 import VideoReducer from "./video.reducer";
+import {AuthenticationReducer} from "./authentication.reducer";
 
 export default combineReducers({
     employees: EmployeeReducer,
     questions: QuestionReducer,
     quiz: QuizReducer,
     quizResult: ResultReducer,
-    currentUser: UserReducer,
+    currentUser: AuthenticationReducer,
     lecture: LectureReducer,
     video: VideoReducer
 })

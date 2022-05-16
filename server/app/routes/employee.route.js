@@ -47,6 +47,7 @@ module.exports = function(app) {
     )
 
 
+
     // router.post("/", [authJwt.verifyToken, authJwt.isAdmin], employees.create);
     // router.get("/" [authJwt.verifyToken], employees.findAll);
     // router.get("/:id", [authJwt.verifyToken], employees.findOne);

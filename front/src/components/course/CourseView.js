@@ -5,50 +5,30 @@ import Lecture from "../lecture/Lecture";
 import VideoView from "../video/VideoView";
 import Quiz from "../quiz/Quiz";
 import {useLocation} from "react-router-dom";
-import {useSelector} from "react-redux";
+import {connect, useSelector} from "react-redux";
 import Results from "../quiz/Results";
 
 const CourseView = (props) => {
     const [stepIndex, setStepIndex] = useState(0)
     const [courseData, setCourseData] = useState(null)
-    const [courseProgression, setCourseProgression] = useState( null
-    //     {
-    //     completionRate: 12.3,
-    //     completed: [true, true, false],
-    //     quiz: [
-    //         {
-    //             stepIndex: 2,
-    //             quizId: 1,
-    //             completed: false,
-    //             points: 0,
-    //             total: 6,
-    //             results:[{
-    //                 id:1,
-    //                 tryNo:1
-    //             }]
-    //         }
-    //     ],
-    //     lecture: [{
-    //         id: 1,
-    //         stepIndex:0
-    //     }],
-    //     video: [{
-    //         id:1,
-    //         stepIndex:1
-    //     }]
-    // }
-    )
+    const [courseProgression, setCourseProgression] = useState( null)
 
     const [showQuiz, setShowQuiz] = useState([])
     const [currentResultId, setCurrentResultId] = useState({})
 
 
     const query = useQuery()
-    const user = useSelector(state => state.currentUser)
+    const { user } = props
+    const {id} = props.match.params
 
     useEffect(() => {
-        const {id} = props.match.params
+        console.log("QUERY")
+    }, [query])
+
+    useEffect(() => {
         const step = query.get("step")
+        console.log("INIT RENDER step:", step)
+
         step ? setStepIndex(parseInt(step)) : setStepIndex(0)
         console.log(id)
         httpCommon.get(`/api/course/${id}`)
@@ -57,7 +37,7 @@ const CourseView = (props) => {
                 setCourseData(res.data)
             })
             .catch(err => console.log(err))
-        httpCommon.get(`/api/courseprog/?user=${user.id}&course=${id}`)
+        httpCommon.get(`/api/courseprog/?employee=${user.employeeId}&course=${id}`)
             .then(res => setCourseProgression(res.data[0]))
             .catch(err => console.log(err))
     }, [])
@@ -210,10 +190,15 @@ const CourseView = (props) => {
         </div>)
 }
 
+const mapStateToProps = (state) => {
+    const { user } = state.currentUser
+    return { user }
+}
+
 function useQuery() {
     const { search } = useLocation();
 
     return React.useMemo(() => new URLSearchParams(search), [search]);
 }
 
-export default CourseView
+export default connect(mapStateToProps)(CourseView)

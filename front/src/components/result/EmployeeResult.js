@@ -16,15 +16,16 @@ import ListItemButton from "@mui/material/ListItemButton";
 import CheckIcon from "@mui/icons-material/Check";
 import ClearIcon from "@mui/icons-material/Clear";
 import ListItemIcon from "@mui/material/ListItemIcon";
+import {connect} from "react-redux";
 
 const EmployeeResult = (props) => {
-    const emplId = 1
+    const {user} = props
 
     const [resultData, setResultData] = useState([])
     const [openDialog, setOpenDialog] = useState({})
 
     useEffect(() => {
-        httpCommon.get(`/api/courseprog?employee=${emplId}`)
+        httpCommon.get(`/api/courseprog?employee=${user.employeeId}`)
             .then(res => {
                 let course_prog = res.data
                 setResultData(course_prog)
@@ -145,7 +146,7 @@ const EmployeeResult = (props) => {
 
 
     return(
-        <Box sx={{display:'flex'}}>
+        <Box sx={{display:'flex', flexDirection:'column'}}>
             {renderData()}
         </Box>
     )
@@ -176,4 +177,9 @@ const ExpandMore = styled((props) => {
     }),
 }));
 
-export default EmployeeResult
+const mapStateToProps = (state) => {
+    const { user } = state.currentUser
+    return { user }
+}
+
+export default connect(mapStateToProps)(EmployeeResult)

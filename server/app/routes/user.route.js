@@ -1,5 +1,6 @@
 const {authJwt} = require('../middleware');
 const controller = require('../controllers/user.controller');
+const employees = require("../controllers/employee.controller");
 module.exports = function(app){
     app.use(function(req, res, next){
         res.header(
@@ -29,6 +30,11 @@ module.exports = function(app){
     app.get(
         "/api/user",
         controller.findAll
+    )
+
+    app.post(
+        "/api/user/:userId/empl/:emplId",
+        controller.setEmployee
     )
 
 

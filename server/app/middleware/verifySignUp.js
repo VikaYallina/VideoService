@@ -13,7 +13,6 @@ checkDuplicates = (req, res, next) => {
             res.status(400).send({
                 message: "Failed. User with this email already exists"
             })
-            return;
         }
     });
 

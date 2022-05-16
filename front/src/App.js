@@ -8,7 +8,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import './App.css';
 import Quiz from "./components/quiz/Quiz";
 import QuizResult from "./components/quiz/Results";
-import {connect} from "react-redux";
+import {connect, useSelector} from "react-redux";
 import QuizList from "./components/quiz/QuizList";
 import EditQuiz from "./components/quiz/NewQuiz";
 import LectureEditor from "./components/lecture/LectureEditor";
@@ -25,77 +25,29 @@ import CourseEdit from "./components/course/CourseEdit";
 import CourseChooser from "./components/course/CourseChooser";
 import ResultList from "./components/result/ResultList";
 import EmployeeResult from "./components/result/EmployeeResult";
+import {PrivateRoute} from "./helpers/PrivateRoute";
+import LoginComponent from "./components/auth/LoginComponent";
+import NotFoundPage from "./components/AccessPages/NotFoundPage";
+import HomePage from "./components/home/HomePage";
+import {Role} from "./helpers/Role";
+import CourseStepView from "./components/course/CourseStepView";
 
 
 
 function App() {
     const [mobileOpen, setMobileOpen] = useState(false);
     const isSmUp = useMediaQuery(theme.breakpoints.up('sm'));
+    const auth = useSelector(state => state.currentUser)
 
     const handleDrawerToggle = () => {
         setMobileOpen(!mobileOpen);
     };
 
     return (
-        // TODO: seperate nav panel form App
-        // <Router location={history.location} navigator={history}>
-        // <div>
-        //     <nav className="navbar navbar-expand navbar-dark bg-dark">
-        //         <a href="/employees" className="navbar-brand">
-        //             Start
-        //         </a>
-        //         <div className="navbar-nav mr-auto">
-        //             <li className="nav-item">
-        //                 <Link to="/employees" className="nav-link">
-        //                     Employees
-        //                 </Link>
-        //             </li>
-        //             <li className="nav-item">
-        //                 <Link to="/add" className="nav-link">
-        //                     Add new empl
-        //                 </Link>
-        //             </li>
-        //             <li className="nav-item">
-        //                 <Link to="/quiz" className="nav-link">
-        //                     Quiz
-        //                 </Link>
-        //             </li>
-        //             <li className="nav-item">
-        //                 <Link to="/lect/edit/1" className="nav-link">
-        //                     Lecture
-        //                 </Link>
-        //             </li>
-        //             <li>
-        //                 <Link to="/video/1" className="nav-link">
-        //                     Video
-        //                 </Link>
-        //             </li>
-        //         </div>
-        //     </nav>
-        //     <div className="container mt-3">
-        //         <Switch>
-        //
-        //             <Route exact path="/add" component={AddEmployee}/>
-        //             <Route exact path="/employees" component={EmployeeList}/>
-        //             <Route exact path="/employees/:id" component={Employee}/>
-        //             <Route exact path="/quiz/edit/:id" component={EditQuiz}/>
-        //             <Route exact path="/lect/edit/:id" component={LectureEditor}/>
-        //             <Route exact path="/lect/:id" component={Lecture}/>
-        //             <Route path="/quiz/:id" component={Quiz}/>
-        //             <Route exact path="/quiz" component={QuizList} />
-        //             <Route path={"/result/:quizId/:resultId"} component={QuizResult} />
-        //             <Route path={"/video/edit/:id"} component={VideoEdit} />
-        //             <Route path={"/video/:id"} component={VideoView}/>
-        //             <Route exact path="/" component ={EmployeeList}/>
-        //
-        //         </Switch>
-        //     </div>
-        // </div>
-        // </Router>
         <ThemeProvider theme={theme}>
             <Box sx={{ display: 'flex', minHeight: '100vh' }}>
                 <CssBaseline />
-                <Box
+                {auth.loggedIn ? (<Box
                     component="nav"
                     sx={{ width: { sm: drawerWidth }, flexShrink: { sm: 0 } }}
                 >
@@ -112,11 +64,13 @@ function App() {
                         PaperProps={{ style: { width: drawerWidth } }}
                         sx={{ display: { sm: 'block', xs: 'none' } }}
                     />
-                </Box>
+                </Box>) : null}
                 <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
                     <Header onDrawerToggle={handleDrawerToggle} />
                     <Box component="main" sx={{ flex: 1, py: 6, px: 4, bgcolor: '#eaeff1' }}>
                         <Switch>
+                            <Route exact path={"/login"} component={LoginComponent}/>
+
                             <Route exact path="/add" component={AddEmployee}/>
                             <Route exact path="/employees" component={EmployeeList}/>
                             <Route exact path="/employees/:id" component={Employee}/>
@@ -134,14 +88,19 @@ function App() {
                             <Route path={"/video/edit/:id"} component={VideoEdit} />
                             <Route path={"/video/:id"} component={VideoView}/>
 
-                            <Route path={"/course/result/e"} component={EmployeeResult} />
+                            <Route path={"/course/result/employee"} component={EmployeeResult} />
                             <Route path={"/course/result"} component={ResultList} />
                             <Route path={"/course/:id/edit"} component={CourseEdit} />
                             <Route path={"/course/choose"} component={CourseChooser} />
-                            <Route path={"/course/:id"} component={CourseView} />
+                            <Route path={"/course/:id"} render={(props) => {
+                                let user = JSON.parse(localStorage.getItem('currentUser'))
+                                return (user && user.roles.includes(Role.Empl)) ? (<CourseView {...props}/>) : (<CourseStepView {...props}/>)
+                            }} />
                             <Route path={"/course"} component={CourseList}/>
 
-                            <Route exact path="/" component ={EmployeeList}/>
+                            <PrivateRoute exact path="/" roles={[Role.Empl, Role.Boss, Role.Admin]} component ={HomePage}/>
+
+                            <Route path="*" component={NotFoundPage} />
                         </Switch>
                     </Box>
                     <Box component="footer" sx={{ p: 2, bgcolor: '#eaeff1' }}>

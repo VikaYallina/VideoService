@@ -29,6 +29,10 @@ db.course_data = require('./course.model')(sequelize, Sequelize)
 db.course_progress = require('./course_progress.model')(sequelize, Sequelize)
 db.quiz_result = require('./quiz_result.model')(sequelize, Sequelize)
 db.department = require('./department.model')(sequelize, Sequelize)
+db.review = require('./review.model')(sequelize, Sequelize)
+
+db.employee.hasOne(db.user)
+db.user.belongsTo(db.employee)
 
 db.role.belongsToMany(db.user, {
     through: "user_roles",
@@ -96,9 +100,14 @@ db.course_progress.belongsTo(db.employee)
 db.course_data.hasMany(db.course_progress)
 db.course_progress.belongsTo(db.course_data, {foreignKey:"courseId", as:"courseData"})
 
+db.employee.belongsToMany(db.course_data,
+    {through: db.review, foreignKey:"employeeId"})
 
+db.course_data.belongsToMany(db.employee,
+    {through: db.review, foreignKey:"courseId"})
 
-
+db.review.belongsTo(db.course_data, {foreignKey:"courseId", as:"courseData"})
+db.review.belongsTo(db.employee, {foreignKey:"employeeId", as:"employee"})
 
 db.quiz.hasMany(db.quiz_result,{
     foreignKey: "quizId"
