@@ -11,52 +11,53 @@ import {
     Typography,
     Rating
 } from "@mui/material";
-import {connect} from "react-redux";
+import {connect, useDispatch} from "react-redux";
 import {userIsAdmin, userIsBoss, userIsEmployee} from "../../helpers/utils";
 import httpCommon from "../../http-common";
 import PropTypes from "prop-types";
 import {history} from "../../helpers/history";
+import {retrieveCourseProg} from "../../actions/courseprog.action";
 
 
 const adminData = [
     {
-        title:"База Знаний",
-        description:"Просмотреть Базу Знаний",
-        img:"/homepage/books2.jpg",
-        routerLink:"/quiz"
+        title: "База Знаний",
+        description: "Просмотреть Базу Знаний",
+        img: "/homepage/books2.jpg",
+        routerLink: "/kb"
     },
     {
-        title:"Курсы",
-        description:"Просмотреть курсы",
-        img:"/homepage/table_computer.jpg",
-        routerLink:"/course"
+        title: "Курсы",
+        description: "Просмотреть курсы",
+        img: "/homepage/table_computer.jpg",
+        routerLink: "/course"
     },
     {
-        title:"Пользователи",
-        description:"Просмотреть и изменить список пользователей",
-        img:"/homepage/employees2.jpg",
-        routerLink:"/employees"
+        title: "Пользователи",
+        description: "Просмотреть и изменить список пользователей",
+        img: "/homepage/employees2.jpg",
+        routerLink: "/employees"
     }
 ]
 
 const bossData = [
     {
-        title:"База Знаний",
-        description:"Просмотреть Базу Знаний",
-        img:"/homepage/books3.jpg",
-        routerLink:"/quiz"
+        title: "База Знаний",
+        description: "Просмотреть Базу Знаний",
+        img: "/homepage/books3.jpg",
+        routerLink: "/kb"
     },
     {
-        title:"Курсы",
-        description:"Назначить курсы сотрудникам отделов",
-        img:"/homepage/study1.jpg",
-        routerLink:"/course/choose"
+        title: "Курсы",
+        description: "Назначить курсы сотрудникам отделов",
+        img: "/homepage/study1.jpg",
+        routerLink: "/course/choose"
     },
     {
-        title:"Результат",
-        description:"Просмотреть результаты сотрудников",
-        img:"/homepage/result.jpg",
-        routerLink:"/course/result"
+        title: "Результат",
+        description: "Просмотреть результаты сотрудников",
+        img: "/homepage/result.jpg",
+        routerLink: "/course/result"
     }
 ]
 
@@ -94,25 +95,35 @@ CircularProgressWithLabel.propTypes = {
 };
 
 const HomePage = (props) => {
-    const {user} = props
-    const [courseList, setCourseList] = useState([])
+    const {user, courseList} = props
+    // const [courseList, setCourseList] = useState([])
     const [openRatingDialog, setOpenRatingDialog] = useState({})
 
+    const dispatch = useDispatch()
     // TODO: Employee id needs to be present
     useEffect(() => {
-        if (userIsEmployee(user)){
-            httpCommon.get(`/api/courseprog?employee=${user.employeeId}`)
-                .then(res => {
-                    const results = res.data
-                    setCourseList(results)
-
+        if (userIsEmployee(user)) {
+            dispatch(retrieveCourseProg(user.employeeId, null))
+                .then(data => {
                     let openData = {}
-                    results.forEach(val => {
-                        openData[val.id] = false
+                    data.forEach(val => {
+                        openData[val.c_id] = false
                     })
                     setOpenRatingDialog(openData)
                 })
-                .catch(err => console.log(err))
+                .catch(err => console.log(err.message))
+            // httpCommon.get(`/api/courseprog?employee=${user.employeeId}`)
+            //     .then(res => {
+            //         const results = res.data
+            //         setCourseList(results)
+            //
+            //         let openData = {}
+            //         results.forEach(val => {
+            //             openData[val.id] = false
+            //         })
+            //         setOpenRatingDialog(openData)
+            //     })
+            //     .catch(err => console.log(err))
         }
 
         console.log(userIsAdmin(user))
@@ -128,53 +139,53 @@ const HomePage = (props) => {
         })
     }
 
-    return(
+    return (
         <Box>
             <Typography variant={"h3"}>Добро пожаловать</Typography>
 
             {userIsEmployee(user) && (<Box>
                 <Typography>Im employee</Typography>
-                <Grid container spacing={{ xs: 2, md: 3 }} columns={{ xs: 4, sm: 8, md: 12 }}>
+                <Grid container spacing={{xs: 2, md: 3}} columns={{xs: 4, sm: 8, md: 12}}>
                     {courseList ? courseList.map((val, index) => (
-                        <Grid item xs={2} sm={4} md={4} key={index}>
-                            <Card>
-                                <CardActionArea
-                                    onClick={() => {
-                                        history.push(`/course/${val.courseData.id}`)
-                                    }}
-                                >
-                                    <CardHeader
-                                        avatar={<CircularProgressWithLabel value={12} />}
-                                        title={val.courseData ? val.courseData.title : "Без названия"}
-                                        subheader={val.courseData.desc ? val.courseData.desc : "Описание отсутвует"}
-                                    />
-                                    {/*<CardContent>*/}
-                                    {/*    <Typography variant="body2" color="text.secondary">*/}
-                                    {/*        {val.courseData.desc ? val.courseData.desc : "Описание отсутвует"}*/}
-                                    {/*    </Typography>*/}
-                                    {/*</CardContent>*/}
-                                </CardActionArea>
-                                <CardActions>
-                                    <Button onClick={() => {
-                                        setOpenRatingDialog(state => {
-                                            let copy = {...state}
-                                            copy[val.id] = true
-                                            return copy
-                                        })
-                                    }}>Оставить отзыв</Button>
-                                    <RatingDialog
-                                        open={openRatingDialog[val.id]}
-                                        handleDialog={handleDialog}
-                                        data={{
-                                            resId: val.id,
-                                            employeeId: user.employeeId,
-                                            courseId: val.courseData.id
-                                        }
-                                    }/>
-                                </CardActions>
-                            </Card>
-                        </Grid>
-                    )) :
+                            <Grid item xs={2} sm={4} md={4} key={index}>
+                                <Card>
+                                    <CardActionArea
+                                        onClick={() => {
+                                            history.push(`/course/${val.courseData.id}`)
+                                        }}
+                                    >
+                                        <CardHeader
+                                            avatar={<CircularProgressWithLabel value={val.completionRate}/>}
+                                            title={val.courseData ? val.courseData.title : "Без названия"}
+                                            subheader={val.courseData.desc ? val.courseData.desc : "Описание отсутвует"}
+                                        />
+                                        {/*<CardContent>*/}
+                                        {/*    <Typography variant="body2" color="text.secondary">*/}
+                                        {/*        {val.courseData.desc ? val.courseData.desc : "Описание отсутвует"}*/}
+                                        {/*    </Typography>*/}
+                                        {/*</CardContent>*/}
+                                    </CardActionArea>
+                                    <CardActions>
+                                        <Button onClick={() => {
+                                            setOpenRatingDialog(state => {
+                                                let copy = {...state}
+                                                copy[val.c_id] = true
+                                                return copy
+                                            })
+                                        }}>Оставить отзыв</Button>
+                                        <RatingDialog
+                                            open={openRatingDialog[val.c_id]}
+                                            handleDialog={handleDialog}
+                                            data={{
+                                                resId: val.c_id,
+                                                employeeId: user.employeeId,
+                                                courseId: val.courseData.id
+                                            }
+                                            }/>
+                                    </CardActions>
+                                </Card>
+                            </Grid>
+                        )) :
                         (<Typography>No data</Typography>)
                     }
                 </Grid>
@@ -182,7 +193,7 @@ const HomePage = (props) => {
 
             {userIsBoss(user) && (<Box>
                 <Typography>Im boss</Typography>
-                <Grid container justifyContent={"center"} spacing={2} >
+                <Grid container justifyContent={"center"} spacing={2}>
                     {bossData.map((value, index) => (
                         <Grid key={index} item xs={"auto"}>
                             <Card
@@ -193,7 +204,9 @@ const HomePage = (props) => {
                                         theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
                                 }}
                             >
-                                <CardActionArea onClick={() => {props.history.push(value.routerLink)}}>
+                                <CardActionArea onClick={() => {
+                                    props.history.push(value.routerLink)
+                                }}>
                                     <CardMedia
                                         component="img"
                                         alt="green iguana"
@@ -217,7 +230,7 @@ const HomePage = (props) => {
 
             {userIsAdmin(user) && (<Box>
                 <Typography>Im admin</Typography>
-                <Grid container spacing={2} justify="space-between" alignItems="stretch">
+                <Grid container justifyContent={"center"} spacing={3} alignItems="stretch">
                     {adminData.map((value, index) => (
                         <Grid key={index} item xs={"auto"}>
                             <Card
@@ -228,7 +241,9 @@ const HomePage = (props) => {
                                         theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
                                 }}
                             >
-                                <CardActionArea onClick={() => {props.history.push(value.routerLink)}}>
+                                <CardActionArea onClick={() => {
+                                    props.history.push(value.routerLink)
+                                }}>
                                     <CardMedia
                                         component="img"
                                         alt="green iguana"
@@ -262,38 +277,40 @@ const RatingDialog = (props) => {
         httpCommon.get(`/api/review?employee=${data.employeeId}&course=${data.courseId}`)
             .then(res => {
                 const reviewData = res.data
-                if (reviewData.length === 0){
+                if (reviewData.length === 0) {
                     setNewReview(true)
-                    setReview({message: "",
-                    rating:0})
-                }
-                else {
+                    setReview({
+                        message: "",
+                        rating: 0
+                    })
+                } else {
                     setNewReview(false)
                     setReview(reviewData[0])
                 }
             })
             .catch(err => console.log(err))
-    },[])
+    }, [])
 
     useEffect(() => {
-        if (open){
+        if (open) {
             console.log("WE")
             httpCommon.get(`/api/review?employee=${data.employeeId}&course=${data.courseId}`)
                 .then(res => {
                     const reviewData = res.data
-                    if (reviewData.length === 0){
+                    if (reviewData.length === 0) {
                         setNewReview(true)
-                        setReview({message: "",
-                            rating:0})
-                    }
-                    else {
+                        setReview({
+                            message: "",
+                            rating: 0
+                        })
+                    } else {
                         setNewReview(false)
                         setReview(reviewData[0])
                     }
                 })
                 .catch(err => console.log(err))
         }
-    },[open])
+    }, [open])
 
     const handleCloseSuccess = () => {
         console.log(newReview)
@@ -324,7 +341,7 @@ const RatingDialog = (props) => {
 
     const handleChange = (event) => {
         let {name, value} = event.target
-        if (name === "rating"){
+        if (name === "rating") {
             value = parseInt(value)
         }
         setReview(state => {
@@ -335,7 +352,7 @@ const RatingDialog = (props) => {
     }
 
 
-    return(
+    return (
         <Dialog
             open={open || false}
             onClose={handleCloseCancel}
@@ -375,8 +392,9 @@ const RatingDialog = (props) => {
 }
 
 const mapStateToProps = (state) => {
-    const { user } = state.currentUser
-    return {user}
+    const courseList = state.courseProg
+    const {user} = state.currentUser
+    return {user, courseList}
 }
 
 export default connect(mapStateToProps)(HomePage)

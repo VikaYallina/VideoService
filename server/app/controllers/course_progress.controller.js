@@ -4,7 +4,7 @@ const CourseProgression = db.course_progress
 exports.create = (req, res) => {
     let body = req.body
     // body = !Array.isArray(body) && [body]
-    CourseProgression.bulkCreate(body,{updateOnDuplicate: ["id"] })
+    CourseProgression.bulkCreate(body,{updateOnDuplicate: ["completionRate", "completed", "quiz", "lecture", "video"] })
         .then(data => res.send(data))
         .catch(err => res.status(500).send({message: err}))
 }
@@ -31,14 +31,14 @@ exports.findAll = (req, res) => {
 
 exports.findById = (req, res) => {
     const id = req.params.id
-    CourseProgression.findOne({where:{id:id}})
+    CourseProgression.findOne({where:{c_id:id}})
         .then(data => res.send(data))
         .catch(err => res.status(500).send({message: err}))
 }
 
 exports.update = (req, res) => {
     const id = req.params.id
-    CourseProgression.update(req.body, {where: {id:id}})
+    CourseProgression.update(req.body, {where: {c_id:id}})
         .then(data => {
             res.send(data)
         })
@@ -49,21 +49,21 @@ exports.update = (req, res) => {
 
 exports.deleteById = (req, res ) => {
     const id = req.params.id
-    CourseProgression.destroy({where:{id:id}})
+    CourseProgression.destroy({where:{c_id:id}})
         .then(num => {
             if (num == 1) {
                 res.send({
-                    message: "employee was deleted successfully!"
+                    message: "Course progression was deleted successfully!"
                 });
             } else {
                 res.send({
-                    message: `Cannot delete employee with id=${id}. Maybe User was not found!`
+                    message: `Cannot delete Course progression with id=${id}. Maybe Course progression was not found!`
                 });
             }
         })
         .catch(err => {
             res.status(500).send({
-                message: "Could not delete employee with id=" + id
+                message: "Could not delete Course progression with id=" + id
             });
         });
 }

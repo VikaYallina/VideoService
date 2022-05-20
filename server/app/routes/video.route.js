@@ -1,3 +1,4 @@
+const {authJwt} = require("../middleware");
 module.exports = function(app) {
     const fs = require('fs')
     const video = require('../controllers/video.controller');
@@ -6,12 +7,12 @@ module.exports = function(app) {
     app.use(function(req, res, next){
         res.header(
             "Access-Control-Allow-Headers",
-            "x-access-token, Origin, Content-Type, Accept"
+            "x-access-token, Origin, Content-Type, Accept, Authorization"
         );
         next();
     })
 
-    router.get("/test", function (req, res) {
+    router.get("/test",  function (req, res) {
         // Ensure there is a range given for the video
         const range = req.headers.range;
         if (!range) {
@@ -47,13 +48,13 @@ module.exports = function(app) {
         videoStream.pipe(res);
     })
 
-    router.get("/", video.findAll)
-    router.post("/:id",video.update)
-    router.post("/", video.create)
-    router.get("/:id/data",video.getData)
-    router.get("/:id",video.getVideo)
-    router.get("/:id/thumb", video.getThumbnail)
-    router.delete("/:id",video.delete)
+    router.get("/",[authJwt.verifyToken], video.findAll)
+    router.post("/:id",[authJwt.verifyToken],video.update)
+    router.post("/",[authJwt.verifyToken], video.create)
+    router.get("/:id/data",[authJwt.verifyToken],video.getData)
+    router.get("/:id",[authJwt.verifyToken],video.getVideo)
+    router.get("/:id/thumb",[authJwt.verifyToken], video.getThumbnail)
+    router.delete("/:id",[authJwt.verifyToken],video.delete)
 
 
     app.use("/api/video", router)

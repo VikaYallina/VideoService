@@ -73,7 +73,7 @@ const CourseCard = (props) => {
                     <IconButton onClick={(e) => {
                         // dispatch(removeLecture(course.id))
                     }}><DeleteIcon/></IconButton>
-                    <Button onClick={() => {setOpenDialog(true)}}>Show reviews</Button>
+                    <Button onClick={() => {setOpenDialog(true)}}>Отзывы</Button>
                 </CardActions>)
             }
 
@@ -115,35 +115,37 @@ const ReviewDialog = (props) => {
         >
             <DialogTitle>Отзывы</DialogTitle>
             <DialogContent dividers={true} sx={{backgroundColor:"#eaeff1"}}>
-                <Grid container>
+                <Grid container direction={"column"} spacing={2}>
                     {reviewData.length !== 0 ?
                         reviewData.map((value, index) => (
-                            <Card key={index} >
-                                <CardHeader
-                                    title={getName(value.employee)}
-                                    avatar={<Avatar aria-label="recipe">
-                                        R
-                                    </Avatar>}
-                                    subheader={<Rating
-                                        size={"small"}
-                                        value={value.rating || 0}
-                                        readOnly
-                                    />}
-                                />
-                                <Divider/>
-                                <CardContent>
-                                    <Typography variant="body1" color="text.primary">
-                                        {value.message}
-                                    </Typography>
-                                </CardContent>
-                            </Card>
+                            <Grid item key={index} xs={12}>
+                                <Card >
+                                    <CardHeader
+                                        title={getName(value.employee)}
+                                        avatar={<Avatar aria-label="recipe">
+                                            {value.employee.lastname.charAt(0)}
+                                        </Avatar>}
+                                        subheader={<Rating
+                                            size={"small"}
+                                            value={value.rating || 0}
+                                            readOnly
+                                        />}
+                                    />
+                                    <Divider/>
+                                    <CardContent>
+                                        <Typography variant="body1" color="text.primary">
+                                            {value.message}
+                                        </Typography>
+                                    </CardContent>
+                                </Card>
+                            </Grid>
                         )) :
-                        (<Typography>No data</Typography>)
+                        (<Typography>Данные отсутствуют</Typography>)
                     }
                 </Grid>
             </DialogContent>
             <DialogActions>
-                <Button onClick={handleClose}>Cancel</Button>
+                <Button onClick={handleClose}>Закрыть</Button>
             </DialogActions>
         </Dialog>
     )

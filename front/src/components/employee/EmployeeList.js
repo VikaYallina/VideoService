@@ -1,6 +1,6 @@
 import React, {useState, useEffect} from "react";
 import {useDispatch, useSelector} from "react-redux";
-import {deleteAllEmployees, retrieveEmployees} from "../../actions/employee.action";
+import {deleteAllEmployees, deleteEmployee, retrieveEmployees} from "../../actions/employee.action";
 import {Link} from "react-router-dom";
 import Quiz from "../quiz/Quiz";
 import {Box, Button, Paper} from "@mui/material";
@@ -8,6 +8,7 @@ import {DataGrid, GridActionsCellItem} from "@mui/x-data-grid";
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import EmployeeEdit from "./EmployeeEdit";
+import httpCommon from "../../http-common";
 
 const EmployeeList = () => {
     const [currEmployee, setCurrEmployee] = useState(null);
@@ -53,7 +54,7 @@ const EmployeeList = () => {
     }
 
     const setDepartmentName = (params) => {
-        return params.value.name
+        return params.value ? params.value.name : "-"
     }
 
     const formatValue = (params) => {
@@ -88,7 +89,10 @@ const EmployeeList = () => {
                         open:true
                     })
                 }} icon={<EditIcon />} label="Edit" />,
-                <GridActionsCellItem icon={<DeleteIcon />} label="Delete" />,
+                <GridActionsCellItem onClick={() => {
+                    dispatch(deleteEmployee(props.row.id))
+                }}
+                    icon={<DeleteIcon />} label="Delete" />,
             ],
         },
     ]
@@ -119,7 +123,7 @@ const EmployeeList = () => {
         <Box>
             <Paper elevation={3}>
                 <Button onClick={handleCreate}>Создать</Button>
-            <div style={{ height: 400, width: '100%' }}>
+            <div style={{ height: 400, width: '100%', padding:2 }}>
                 <div style={{ display: 'flex', height: '100%' }}>
 
                         <div style={{ flexGrow: 1 }}>

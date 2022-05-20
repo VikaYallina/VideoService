@@ -21,7 +21,7 @@ const QuizCard = (props) => {
 
 
     return(
-        <Card key={propValue.quiz.id}>
+        <Card key={propValue.quiz.id} >
             <CardActionArea onClick={(e) => {
                 // history.push(`/quiz/${propValue.quiz.id}`)
                 window.open(`/quiz/${propValue.quiz.id}`, "_blank");

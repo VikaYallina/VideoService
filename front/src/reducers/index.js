@@ -7,6 +7,7 @@ import UserReducer from "./user.reducer";
 import LectureReducer from "./lecture.reducer";
 import VideoReducer from "./video.reducer";
 import {AuthenticationReducer} from "./authentication.reducer";
+import CourseProgReducer from "./courseprog.reducer";
 
 export default combineReducers({
     employees: EmployeeReducer,
@@ -15,5 +16,6 @@ export default combineReducers({
     quizResult: ResultReducer,
     currentUser: AuthenticationReducer,
     lecture: LectureReducer,
-    video: VideoReducer
+    video: VideoReducer,
+    courseProg: CourseProgReducer,
 })

@@ -65,48 +65,53 @@ function App() {
                         sx={{ display: { sm: 'block', xs: 'none' } }}
                     />
                 </Box>) : null}
-                <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-                    <Header onDrawerToggle={handleDrawerToggle} />
-                    <Box component="main" sx={{ flex: 1, py: 6, px: 4, bgcolor: '#eaeff1' }}>
-                        <Switch>
-                            <Route exact path={"/login"} component={LoginComponent}/>
-
-                            <Route exact path="/add" component={AddEmployee}/>
-                            <Route exact path="/employees" component={EmployeeList}/>
-                            <Route exact path="/employees/:id" component={Employee}/>
-
-                            <Route path={"/result/:quizId/:resultId"} component={QuizResult} />
-
-                            <Route exact path="/quiz/edit/:id" component={EditQuiz}/>
-                            <Route path="/quiz/:id" component={Quiz}/>
-                            <Route exact path="/quiz" component={QuizList} />
-
-                            <Route exact path="/lect/edit/:id" component={LectureEditor}/>
-                            <Route exact path="/lect/:id" component={Lecture}/>
+                <Switch>
+                    <Route exact path={"/login"} component={LoginComponent}/>
+                </Switch>
+                {auth.loggedIn && (
+                    <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+                        <Header onDrawerToggle={handleDrawerToggle} />
+                        <Box component="main" sx={{ flex: 1, py: 6, px: 4, bgcolor: '#eaeff1' }}>
+                            <Switch>
 
 
-                            <Route path={"/video/edit/:id"} component={VideoEdit} />
-                            <Route path={"/video/:id"} component={VideoView}/>
+                                <Route exact path="/add" component={AddEmployee}/>
+                                <Route exact path="/employees" component={EmployeeList}/>
+                                <Route exact path="/employees/:id" component={Employee}/>
 
-                            <Route path={"/course/result/employee"} component={EmployeeResult} />
-                            <Route path={"/course/result"} component={ResultList} />
-                            <Route path={"/course/:id/edit"} component={CourseEdit} />
-                            <Route path={"/course/choose"} component={CourseChooser} />
-                            <Route path={"/course/:id"} render={(props) => {
-                                let user = JSON.parse(localStorage.getItem('currentUser'))
-                                return (user && user.roles.includes(Role.Empl)) ? (<CourseView {...props}/>) : (<CourseStepView {...props}/>)
-                            }} />
-                            <Route path={"/course"} component={CourseList}/>
+                                <Route path={"/result/:quizId/:resultId"} component={QuizResult} />
 
-                            <PrivateRoute exact path="/" roles={[Role.Empl, Role.Boss, Role.Admin]} component ={HomePage}/>
+                                <Route exact path="/quiz/edit/:id" component={EditQuiz}/>
+                                <Route path="/quiz/:id" component={Quiz}/>
+                                <Route exact path="/kb" component={QuizList} />
 
-                            <Route path="*" component={NotFoundPage} />
-                        </Switch>
+                                <Route exact path="/lect/edit/:id" component={LectureEditor}/>
+                                <Route exact path="/lect/:id" component={Lecture}/>
+
+
+                                <Route path={"/video/edit/:id"} component={VideoEdit} />
+                                <Route path={"/video/:id"} component={VideoView}/>
+
+                                <Route path={"/course/result/employee"} component={EmployeeResult} />
+                                <Route path={"/course/result"} component={ResultList} />
+                                <Route path={"/course/:id/edit"} component={CourseEdit} />
+                                <Route path={"/course/choose"} component={CourseChooser} />
+                                <Route path={"/course/:id"} render={(props) => {
+                                    let user = JSON.parse(localStorage.getItem('currentUser'))
+                                    return (user && user.roles.includes(Role.Empl)) ? (<CourseView {...props}/>) : (<CourseStepView {...props}/>)
+                                }} />
+                                <Route path={"/course"} component={CourseList}/>
+
+                                <PrivateRoute exact path="/dashboard" roles={[Role.Empl, Role.Boss, Role.Admin]} component ={HomePage}/>
+
+                                <Route path="*" component={NotFoundPage} />
+                            </Switch>
+                        </Box>
+                        <Box component="footer" sx={{ p: 2, bgcolor: '#eaeff1' }}>
+                            <Copyright />
+                        </Box>
                     </Box>
-                    <Box component="footer" sx={{ p: 2, bgcolor: '#eaeff1' }}>
-                        <Copyright />
-                    </Box>
-                </Box>
+                )}
             </Box>
         </ThemeProvider>
     );

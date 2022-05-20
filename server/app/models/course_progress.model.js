@@ -4,10 +4,10 @@ module.exports = (sequelize, Sequelize) => {
     class CourseProgression extends OwnModel {}
 
     CourseProgression.init({
-        id: {
-            type: Sequelize.INTEGER,
-            autoIncrement: true,
-            primaryKey: true
+        c_id: {
+            type: Sequelize.UUID,
+            defaultValue: Sequelize.UUIDV4,
+            allowNull: false
         },
         completionRate: {
             type: Sequelize.DECIMAL(5,2)

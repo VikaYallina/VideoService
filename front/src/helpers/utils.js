@@ -94,6 +94,7 @@ export const generateCourseResult = (courseData) => {
     return {
         employeeId: null,
         courseId: courseData.id,
+        courseDatumId: courseData.id,
         completionRate: 0.0,
         completed: new Array(courseData.steps.length).fill(false),
         quiz: quiz,

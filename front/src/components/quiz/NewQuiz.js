@@ -1,30 +1,27 @@
 import React, {useEffect, useState} from "react";
 import {
+    Box,
     Button,
-    Card,
+    Card, CardActions,
     CardContent, CardHeader, Checkbox,
-    Container,
-    Divider, IconButton,
-    Input,
+    Divider, Grid, IconButton,
     List,
-    ListItem,
-    Stack,
-    TextField,
+    ListItem, Paper,
+    Stack, styled,
+    TextField, Tooltip,
     Typography
 } from "@mui/material";
-import NumberFormat from "react-number-format";
-import PropTypes from "prop-types";
 import AddIcon from '@mui/icons-material/Add';
-import RemoveIcon from '@mui/icons-material/Remove';
+import ClearIcon from '@mui/icons-material/Clear';
 import {connect, useDispatch} from "react-redux";
 import {millis2time, time2millis} from "../../helpers/utils";
 import {retrieveAllQuiz, updateQuiz} from "../../actions/quiz.action";
 import QuizService from "../../services/quiz.service";
 
 const EditQuiz = (props) => {
-    const [quizTitle, setQuizTitle] = useState("Hello")
+    const [quizTitle, setQuizTitle] = useState("")
     const [description, setDescription] = useState("")
-    const [timeLimit, setTimeLimit] = useState()
+    const [pointsBorder, setPointsBorder] = useState(0)
 
     const [questionList, setQuestionList] = useState([])
     const [inputToggle, setInputToggle] = useState([])
@@ -34,54 +31,54 @@ const EditQuiz = (props) => {
     const dispatch = useDispatch()
 
 
-    useEffect(()=>{
+    useEffect(() => {
         let q = null
-        if (props.quiz){
+        if (props.quiz) {
             q = props.quiz
-        }else {
-            if (props.id){
+        } else {
+            if (props.id) {
                 dispatch(retrieveAllQuiz())
                     .then(res => q = res.find(val => val.id === props.id))
-                    .catch(err => props.history.push("/quiz"))
-            }else {
-                props.history.push("/quiz")
+                    .catch(err => props.history.push("/kb"))
+            } else {
+                props.history.push("/kb")
             }
         }
-        setQuizTitle(q.title)
-        setDescription(q.desc)
+        (q && q.title) && setQuizTitle(q.title)
+        (q && q.desc) && setDescription(q.desc)
 
-        if (q.time_limit){
-            setTimeLimit(millis2time(q.time_limit))
+        if (q && q.points_borderline) {
+            setPointsBorder(q.points_borderline)
         }
 
-        if (q.questions){
+        if (q && q.questions) {
             const qList = []
             q.questions.forEach((q_, i) => {
                 const options = []
                 q_.correct.forEach(val => options.push({
-                    option:val,
-                    correct:true
+                    option: val,
+                    correct: true
                 }))
                 q_.wrong.forEach(val => options.push({
-                    option:val,
+                    option: val,
                     correct: false
                 }))
                 const val = {
                     id: (q_.id ? q_.id : null),
                     Qtext: q_.Qtext,
-                    options:options,
+                    options: options,
                     weight: q_.weight
                 }
                 qList.push(val)
             })
             setQuestionList(qList)
         }
-    },[])
+    }, [])
 
 
     useEffect(() => {
         console.log(questionList)
-        console.log(timeLimit)
+        console.log(pointsBorder)
     }, [questionList])
 
     useEffect(() => {
@@ -100,9 +97,9 @@ const EditQuiz = (props) => {
         setQuizTitle(_quizTitle)
     }
 
-    const onChangeTimeLimit = (event) => {
-        const _timeLimit = event.target.value
-        setTimeLimit(_timeLimit)
+    const onChangePointsBorder = (event) => {
+        const pb = event.target.value
+        setPointsBorder(pb)
     }
 
     const onChangeDescription = (event) => {
@@ -115,7 +112,7 @@ const EditQuiz = (props) => {
         const val = {
             title: quizTitle,
             desc: description,
-            time_limit: time2millis(timeLimit),
+            points_borderline: pointsBorder,
             questions: questionList ?
                 questionList.map(q => {
                     let corr = []
@@ -123,7 +120,7 @@ const EditQuiz = (props) => {
                     q.options.forEach(op => {
                         op.correct ? corr.push(op.option) : wr.push(op.option)
                     })
-                    const type = corr.length > 1 ? "single" : "multi"
+                    const type = corr.length > 1 ? "multi" : "single"
                     return {
                         id: q.id,
                         Qtext: q.Qtext,
@@ -137,7 +134,7 @@ const EditQuiz = (props) => {
         }
         console.log(val)
         dispatch(updateQuiz(props.quiz.id, val))
-            .then(() => props.history.push("/quiz"))
+            .then(() => props.history.push("/kb"))
             .catch(err => alert(err))
     }
 
@@ -145,59 +142,74 @@ const EditQuiz = (props) => {
         const questionItems = []
         questionList.forEach((q, index) => {
             questionItems.push(
-                <Card key={index}>
-                    <CardHeader action={
-                        <IconButton onClick={(e)=>{
-                            setQuestionList(arr=> {return arr.filter((val,i) => i!==index)})
-                        }}>
-                            <RemoveIcon/>
-                        </IconButton>}
-                                title={
-                                    <Stack
-                                        direction={"row"}
-                                        alignItems={"baseline"}
-                                        spacing={2}>
-                                        <Typography>{index + 1}.</Typography>
-                                        <TextField label="Вопрос"
-                                                   variant={"standard"}
-                                                   size={"medium"}
-                                                   value={questionList[index].Qtext ||''}
-                                                   onChange={(e) => {
-                                                       const val = e.target.value
-                                                       setQuestionList(list => {
-                                                           const copy = [...list]
-                                                           copy[index].Qtext = val
-                                                           return copy
-                                                       })
-                                                   }}
-                                        />
-                                        <TextField label="Вес"
-                                                   variant={"standard"}
-                                                   size={"medium"}
-                                                   value={questionList[index].weight || ''}
-                                                   InputProps={{
-                                                       inputProps: {
-                                                           type: "number", step:1, min:1, max:100, pattern: '[0-9]*'
-                                                       }
-                                                   }}
-                                                   onChange={(e) => {
-                                                       let val = parseInt(e.target.value)
-                                                       if (val > 100) val = 100
-                                                       if (val < 0) val = 0
+                <Box key={index} borderRadius={1} border={2} borderColor={"#009be5"}>
+                    <Card elevation={0}>
+                        <CardHeader action={
+                            <IconButton onClick={(e) => {
+                                setQuestionList(arr => {
+                                    return arr.filter((val, i) => i !== index)
+                                })
+                            }}>
+                                <ClearIcon/>
+                            </IconButton>}
+                                    title={
+                                        <Grid container
+                                            direction={"row"}
+                                            alignItems={"center"}
+                                              spacing={1}
+                                            >
+                                            <Grid item xs={1}>
+                                                <Typography>{index + 1}.</Typography>
+                                            </Grid>
+                                            <Grid item xs={9}>
+                                                <TextField label="Вопрос"
+                                                           variant={"standard"}
+                                                           fullWidth
+                                                           size={"medium"}
+                                                           value={questionList[index].Qtext || ''}
+                                                           onChange={(e) => {
+                                                               const val = e.target.value
+                                                               setQuestionList(list => {
+                                                                   const copy = [...list]
+                                                                   copy[index].Qtext = val
+                                                                   return copy
+                                                               })
+                                                           }}
+                                                />
+                                            </Grid>
+                                            <Grid item xs={2}>
+                                                <TextField label="Вес"
+                                                           variant={"standard"}
+                                                           size={"medium"}
+                                                           value={questionList[index].weight || ''}
+                                                           InputProps={{
+                                                               inputProps: {
+                                                                   type: "number",
+                                                                   step: 1,
+                                                                   min: 1,
+                                                                   max: 100,
+                                                                   pattern: '[0-9]*'
+                                                               }
+                                                           }}
+                                                           onChange={(e) => {
+                                                               let val = parseInt(e.target.value)
+                                                               if (val > 100) val = 100
+                                                               if (val < 0) val = 0
 
-                                                       setQuestionList(list => {
-                                                           const copy = [...list]
-                                                           copy[index].weight = val
-                                                           return copy
-                                                       })
-                                                   }}
-                                        />
+                                                               setQuestionList(list => {
+                                                                   const copy = [...list]
+                                                                   copy[index].weight = val
+                                                                   return copy
+                                                               })
+                                                           }}
+                                                />
+                                            </Grid>
 
-                                    </Stack>}/>
-                    <CardContent>
-
-                        <List>
+                                        </Grid>}/>
+                        <CardContentNoPadding>
                             {renderOptionsList(q.options, index)}
+                        </CardContentNoPadding>
+                        <CardActions>
                             <Button
                                 fullWidth
                                 onClick={(e) => {
@@ -209,9 +221,9 @@ const EditQuiz = (props) => {
                                 }}>
                                 <AddIcon/>
                             </Button>
-                        </List>
-                    </CardContent>
-                </Card>)
+                        </CardActions>
+                    </Card>
+                </Box>)
         })
 
         return questionItems
@@ -248,7 +260,7 @@ const EditQuiz = (props) => {
                 />
             </ListItem>)
         }
-        return items;
+        return(<List>{items}</List>);
     }
 
 
@@ -265,33 +277,35 @@ const EditQuiz = (props) => {
 
     return (
         <Stack
+            padding={2}
             spacing={2}
             direction="column"
             divider={<Divider orientation="horizontal" flexItem/>}
+            component={Paper}
         >
             <Stack direction="row" spacing={2} justifyContent="space-around">
                 <TextField
                     required
                     id="quizTitle"
-                    label="quiz title"
+                    label="Название"
                     value={quizTitle || ''}
                     onChange={onChangeTitle}
                 />
-                <TextField
-                    label="time limit"
-                    value={timeLimit || ''}
-                    onChange={onChangeTimeLimit}
-                    name="timeformat"
-                    id="formatted-timeformat-input"
-                    InputProps={{
-                        inputComponent: TimeFormatCustom,
-                    }}
-                />
-                <Button onClick={handleSaveChanges}>Save</Button>
+                <Tooltip title={"Минимальное кол-во баллов необходимых для прохождения теста"}>
+                    <TextField
+                        label="Кол-во пограничных баллов"
+                        value={pointsBorder || ''}
+                        onChange={onChangePointsBorder}
+                        name="points_border"
+                        type={"number"}
+                        id="formatted-timeformat-input"
+                    />
+                </Tooltip>
+                <Button onClick={handleSaveChanges} variant={"contained"}>Сохранить</Button>
             </Stack>
             <TextField
                 id="description"
-                label="description"
+                label="Описание"
                 value={description || ''}
                 onChange={onChangeDescription}
             />
@@ -308,41 +322,19 @@ const EditQuiz = (props) => {
     )
 }
 
-const TimeFormatCustom = React.forwardRef(function NumberFormatCustom(props, ref) {
-    const {onChange, ...other} = props;
 
-    return (
-        <NumberFormat
-            {...other}
-            getInputRef={ref}
-            onValueChange={(values) => {
-                onChange({
-                    target: {
-                        name: props.name,
-                        value: values.value,
-                    },
-                });
-            }}
-            format="##:##"
-            placeholder="мм:сс"
-            mask='_'
-            isNumericString
-        />
-    );
-});
+const CardContentNoPadding = styled(CardContent)(`
+  padding: 1;
+  &:last-child {
+    padding-bottom: 0;
+  }
+`);
 
-TimeFormatCustom.propTypes = {
-    name: PropTypes.string.isRequired,
-    onChange: PropTypes.func.isRequired,
-};
-
-
-const mapStateToProps = (state, ownProps) =>{
+const mapStateToProps = (state, ownProps) => {
     let {id} = ownProps.match.params
     id = parseInt(id)
     const quiz = state.quiz.find(q => q.id === id)
-    return {quiz: quiz,
-            id: id}
+    return {quiz, id}
 }
 
 export default connect(mapStateToProps)(EditQuiz)

@@ -26,20 +26,13 @@ exports.signup = async (req, res) =>{
         accessToken: process.env.EMAIL_ACCESS_TOKEN,
         template_params: {
             'username': 'James',
-            'message': `Your password is ${password}`,
-            'from_name':'Vika',
+            'message': `Ваш пароль: ${password}`,
+            'from_name':'Need2Learn',
             'to_name':`${req.body.lastname} ${req.body.firstname}`,
             'to_mail':req.body.email
         }
     };
 
-    // fetch("https://api.emailjs.com/api/v1.0/email/send", {
-    //     method: "POST",
-    //     headers: {
-    //         'Content-Type': 'application/json'
-    //     },
-    //     body: JSON.stringify(data)
-    // })
 
     User.create({
         email: req.body.email,
@@ -76,6 +69,50 @@ exports.signup = async (req, res) =>{
     })
 }
 
+exports.signupAdmin = async (req, res) => {
+    const employee = await Employee.create(req.body)
+
+    // fetch("https://api.emailjs.com/api/v1.0/email/send", {
+    //     method: "POST",
+    //     headers: {
+    //         'Content-Type': 'application/json'
+    //     },
+    //     body: JSON.stringify(data)
+    // })
+
+    console.log(req.body)
+
+    User.create({
+        email: req.body.email,
+        password: bcrypt.hashSync(req.body.password),
+        employeeId: employee.id
+    })
+        .then(user => {
+            if (req.body.roles) {
+                Role.findAll({
+                    where: {
+                        name: {
+                            [Op.or]: req.body.roles
+                        }
+                    }
+                })
+                    .then(roles => {
+                        user.setRoles(roles).then(() => {
+                            res.send(employee)
+                        }).catch(err => res.status(500).send({message: err.response.data}))
+                    })
+                    .catch(err => res.status(500).send({message: err.response.data}))
+            } else {
+                user.setRoles([1]).then(() => {
+                    res.send(employee)
+                })
+                    .catch(err => res.status(500).send({message: err.response.data}))
+            }
+        })
+        .catch(err => {
+            req.status(500).send({message: err.message})
+        })
+}
 
 exports.signin = (req, res) =>{
     User.findOne({

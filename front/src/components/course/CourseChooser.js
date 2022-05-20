@@ -1,12 +1,12 @@
 import React, {useEffect, useState} from 'react'
-import {Box, Button, Step, StepButton, Stepper, Typography} from "@mui/material";
+import {Box, Button, Divider, Paper, Stack, Step, StepButton, Stepper, Typography} from "@mui/material";
 import CourseList from "./CourseList";
 import CourseChooseEmployee from "./CourseChooseEmployee";
 import httpCommon from "../../http-common";
 import CourseCard from "./component/CourseCard";
 import {connect} from "react-redux";
 
-const steps = ['Select campaign settings', 'Create an ad group'];
+const steps = ['Выберите курс из списка', 'Выберите сотрудников из списка'];
 
 const CourseChooser = (props) => {
 
@@ -107,14 +107,13 @@ const CourseChooser = (props) => {
             copy[data.index].checked = data.checked
             return copy
         })
-        console.log("GOT ID")
     }
 
     const renderStep = () => {
         switch (activeStep) {
             case 0:
                 // return <CourseList showChooserAction={true} courseList={courseList} parentData={chosenCourses} sendDataToParent={handleChosenCourses} />
-                return <Box>
+                return <Stack padding={2} spacing={2} direction={"column"}>
                     {
                         chosenCourses ?
                             (chosenCourses.map((data, index) => (
@@ -130,7 +129,7 @@ const CourseChooser = (props) => {
                             :
                             (<Typography>No</Typography>)
                     }
-                </Box>
+                </Stack>
             case 1:
                 return <CourseChooseEmployee chosenEmpl={chosenEmpl} employeeData={employeeList} saveEmployeeData={handleSaveChosenEmpl}/>
             default:
@@ -183,6 +182,7 @@ const CourseChooser = (props) => {
         let result = {
             employeeId: null,
             courseId: courseData.course.id,
+            courseDatumId: courseData.course.id,
             completionRate:0.0,
             completed: new Array(courseData.course.steps.length).fill(false),
             status:"NOT_STARTED",
@@ -213,7 +213,7 @@ const CourseChooser = (props) => {
 
             httpCommon.post(`/api/courseprog/`,resultSend)
                 .then(() => {
-                    props.history.push("/course")
+                    props.history.push("/dashboard")
                 })
                 .catch(err => {
                     console.log(err)
@@ -224,7 +224,7 @@ const CourseChooser = (props) => {
     }
 
     return (
-        <Box sx={{ width: '100%' }}>
+        <Box sx={{ width: '100%' }} component={Paper} padding={2}>
             <Stepper nonLinear activeStep={activeStep}>
                 {steps.map((label, index) => (
                     <Step key={label} completed={completed[index]}>
@@ -234,7 +234,7 @@ const CourseChooser = (props) => {
                     </Step>
                 ))}
             </Stepper>
-            <div>
+            <Box marginTop={2}>
                 {allStepsCompleted() ?
                     saveChanges()
                     // <React.Fragment>
@@ -251,7 +251,6 @@ const CourseChooser = (props) => {
                         <Box>
                             {renderStep()}
                         </Box>
-                        <Typography sx={{ mt: 2, mb: 1 }}>Step {activeStep + 1}</Typography>
                         <Box sx={{ display: 'flex', flexDirection: 'row', pt: 2 }}>
                             <Button
                                 color="inherit"
@@ -259,11 +258,11 @@ const CourseChooser = (props) => {
                                 onClick={handleBack}
                                 sx={{ mr: 1 }}
                             >
-                                Back
+                                Назад
                             </Button>
                             <Box sx={{ flex: '1 1 auto' }} />
                             <Button onClick={handleNext} sx={{ mr: 1 }}>
-                                Next
+                                Далее
                             </Button>
                             {activeStep !== steps.length &&
                                 (completed[activeStep] ? (
@@ -273,14 +272,14 @@ const CourseChooser = (props) => {
                                 ) : (
                                     <Button onClick={handleComplete}>
                                         {completedSteps() === totalSteps() - 1
-                                            ? 'Finish'
-                                            : 'Complete Step'}
+                                            ? 'Сохранить'
+                                            : 'Завершить этап'}
                                     </Button>
                                 ))}
                         </Box>
                     </React.Fragment>
                 )}
-            </div>
+            </Box>
         </Box>
     );
 }

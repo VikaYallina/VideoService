@@ -1,10 +1,10 @@
 import React, {useEffect, useState} from 'react'
 import httpCommon from "../../http-common";
 import {
-    Box,
+    Box, Button,
     Card,
     CardContent,
-    CardHeader, Dialog, DialogTitle,
+    CardHeader, Dialog, DialogActions, DialogContent, DialogTitle,
     Divider,
     IconButton,
     List,
@@ -16,35 +16,58 @@ import ListItemButton from "@mui/material/ListItemButton";
 import CheckIcon from "@mui/icons-material/Check";
 import ClearIcon from "@mui/icons-material/Clear";
 import ListItemIcon from "@mui/material/ListItemIcon";
-import {connect} from "react-redux";
+import {connect, useDispatch} from "react-redux";
+import {retrieveCourseProg} from "../../actions/courseprog.action";
+import Results from "../quiz/Results";
 
 const EmployeeResult = (props) => {
-    const {user} = props
+    const {user, resultData} = props
 
-    const [resultData, setResultData] = useState([])
+    // const [resultData, setResultData] = useState([])
     const [openDialog, setOpenDialog] = useState({})
+    const dispatch = useDispatch()
 
     useEffect(() => {
-        httpCommon.get(`/api/courseprog?employee=${user.employeeId}`)
-            .then(res => {
-                let course_prog = res.data
-                setResultData(course_prog)
-                let open = {}
-                course_prog.quiz.forEach(val => {
-                    (val.results && val.results.length !== 0) &&
-                        val.results.forEach(r => open[r.id]=false)
-                })
-
-                setOpenDialog(open)
-            })
-            .catch(err => console.log(err))
+        dispatch(retrieveCourseProg(user.employeeId))
+        // httpCommon.get(`/api/courseprog?employee=${user.employeeId}`)
+        //     .then(res => {
+        //         let course_prog = res.data
+        //         setResultData(course_prog)
+        //         let open = {}
+        //         course_prog.quiz.forEach(val => {
+        //             (val.results && val.results.length !== 0) &&
+        //                 val.results.forEach(r => open[r.id]=false)
+        //         })
+        //
+        //         setOpenDialog(open)
+        //     })
+        //     .catch(err => console.log(err))
     },[])
+
+    useEffect(() => {
+        let open = {}
+        resultData.forEach(result => {
+            result.quiz.forEach(val => {
+                (val.results && val.results.length !== 0) &&
+                val.results.forEach(r => open[r.id]=false)
+            })
+        })
+
+        setOpenDialog(open)
+    },[resultData])
+
+    useEffect(() => {
+        console.log(openDialog)
+    }, [openDialog])
+
 
 
     const handleClose = (resId) => {
+        console.log(resId)
         setOpenDialog(state => {
             let copy = {...state}
             copy[resId] = false
+            console.log("COPY",copy)
             return copy
         })
     }
@@ -55,7 +78,7 @@ const EmployeeResult = (props) => {
             resultData.map((val, index) => (
                 <Card key={index}>
                     <CardHeader
-                        title={`${index}. ${val.courseData.title}`}
+                        title={`${index+1}. ${val.courseData.title}`}
                         subheader={`Пройдено: ${val.completionRate}%`}
                     />
                     <CardContent>
@@ -81,19 +104,20 @@ const EmployeeResult = (props) => {
                                                         <ListItemButton onClick={() => {
                                                             setOpenDialog(state => {
                                                                 let copy = {...state}
-                                                                copy[val.id] = true
+                                                                copy[res.id] = true
                                                                 return copy
                                                             })
                                                         }}>
                                                             <ListItemText primary={"RESULT"}/>
-                                                            <ResultDialog open={openDialog[val.id]} handleClose={handleClose} resultId={res.id}/>
                                                         </ListItemButton>
+                                                        <ResultDialog open={openDialog[res.id]} handleClose={handleClose} resultId={res.id}/>
                                                     </ListItem>
                                                 )) :
                                                 (<Typography>No data</Typography>)
                                             }
                                         </List>
                                     </ListItem>
+
                                 ))}
                             </List>) :
                             (<Typography>No data</Typography>)
@@ -158,8 +182,16 @@ const ResultDialog = (props) => {
     return(
         <Dialog open={open}
                 onClose={() => handleClose(resultId)}
+                maxWidth={"sx"}
+                fullWidth={true}
         >
-            <DialogTitle>Why</DialogTitle>
+            <DialogTitle>Why {resultId}</DialogTitle>
+            <DialogContent>
+                <Results id={resultId}/>
+            </DialogContent>
+            <DialogActions>
+                <Button onClick={() => handleClose(resultId)}>Close</Button>
+            </DialogActions>
 
         </Dialog>
     )
@@ -179,7 +211,8 @@ const ExpandMore = styled((props) => {
 
 const mapStateToProps = (state) => {
     const { user } = state.currentUser
-    return { user }
+    const resultData = state.courseProg
+    return { user, resultData }
 }
 
 export default connect(mapStateToProps)(EmployeeResult)

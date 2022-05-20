@@ -1,7 +1,9 @@
 const db = require('../models');
+const sequelize = db.sequelize
 const Employee = db.employee;
 const Op = db.Sequelize.Op;
 const Department = db.department
+const User = db.user
 
 // Create and Save a new Tutorial
 exports.create = (req, res) => {
@@ -62,7 +64,7 @@ exports.findAll = (req, res) => {
 exports.findOne = (req, res) => {
     const id = req.params.id;
 
-    Employee.findByPk(id)
+    Employee.findByPk(id, {include: {association: Employee.department}})
         .then(data => {
             if (data) {
                 res.send(data);
@@ -97,28 +99,46 @@ exports.update = (req, res) => {
 };
 
 // Delete a Tutorial with the specified id in the request
-exports.delete = (req, res) => {
+exports.delete = async (req, res) => {
     const id = req.params.id;
+    let t = null
 
-    Employee.destroy({
-        where: {id: id}
-    })
-        .then(num => {
-            if (num == 1) {
-                res.send({
-                    message: "employee was deleted successfully!"
-                });
-            } else {
-                res.send({
-                    message: `Cannot delete employee with id=${id}. Maybe User was not found!`
-                });
-            }
-        })
-        .catch(err => {
+    try {
+        t = await sequelize.transaction();
+        await User.destroy({where: {employeeId: id}}, {transaction: t})
+        await Employee.destroy({where: {id}}, {transaction: t})
+        t.commit()
+            .then(() => {
+                res.send({message: "Employee deleted"})
+            })
+    } catch (err) {
+        t.rollback().then(() => {
             res.status(500).send({
                 message: "Could not delete employee with id=" + id
             });
-        });
+        })
+
+    }
+
+    // Employee.destroy({
+    //     where: {id: id}
+    // })
+    //     .then(num => {
+    //         if (num == 1) {
+    //             res.send({
+    //                 message: "employee was deleted successfully!"
+    //             });
+    //         } else {
+    //             res.send({
+    //                 message: `Cannot delete employee with id=${id}. Maybe User was not found!`
+    //             });
+    //         }
+    //     })
+    //     .catch(err => {
+    //         res.status(500).send({
+    //             message: "Could not delete employee with id=" + id
+    //         });
+    //     });
 };
 
 // Delete all employees from the database.

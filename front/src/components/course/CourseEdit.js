@@ -4,14 +4,15 @@ import {
     Button,
     Card,
     CardActions,
-    CardHeader, FormControl, IconButton, InputLabel, MenuItem,
-    Paper, Select,
+    CardHeader, Chip, Divider, FormControl, Grid, IconButton, InputLabel, MenuItem,
+    Paper, Select, Stack,
     Step,
     StepLabel,
     Stepper,
     Tab, TextField,
     Typography
 } from "@mui/material";
+import RemoveIcon from '@mui/icons-material/Remove';
 import getUuidByString from "uuid-by-string";
 import {DragDropContext, Draggable, Droppable} from "react-beautiful-dnd";
 import RemoveCircleIcon from '@mui/icons-material/RemoveCircle';
@@ -25,7 +26,7 @@ import LectureCard from "../lecture/component/LectureCard";
 import VideoCard from "../video/VideoCard";
 import httpCommon from "../../http-common";
 
-const steps = ['Select campaign settings', 'Create an ad'];
+const steps = ['Выберите материалы из Базы Знаний', 'Добавьте название и описание'];
 
 const CourseEdit = (props) => {
     const [lastEmployeeData, setLastEmployeeData] = useState([])
@@ -59,7 +60,7 @@ const CourseEdit = (props) => {
     const [skipped, setSkipped] = React.useState(new Set());
 
     const isStepOptional = (step) => {
-        return step === 1;
+        return false;
     };
 
     const isStepSkipped = (step) => {
@@ -145,13 +146,13 @@ const CourseEdit = (props) => {
             case 1:
                 return (<CourseDataComponent props={props} courseData={courseData} saveCourseData={saveCourseData}/>)
             default:
-                return (<Typography>Not yet impl</Typography>)
+                return (<Typography>Произошла ошибка</Typography>)
         }
     }
 
     return (
-        <Box sx={{ width: '100%' }}>
-            <Stepper activeStep={activeStep}>
+        <Box sx={{ width: '100%' }} component={Paper} padding={2}>
+            <Stepper activeStep={activeStep} sx={{paddingBottom:2, paddingTop:2}}>
                 {steps.map((label, index) => {
                     const stepProps = {};
                     const labelProps = {};
@@ -170,6 +171,7 @@ const CourseEdit = (props) => {
                     );
                 })}
             </Stepper>
+            <Divider/>
             {activeStep === steps.length ? saveChanges()
              : (
                 <React.Fragment>
@@ -181,7 +183,7 @@ const CourseEdit = (props) => {
                             onClick={handleBack}
                             sx={{ mr: 1 }}
                         >
-                            Back
+                            Назад
                         </Button>
                         <Box sx={{ flex: '1 1 auto' }} />
                         {isStepOptional(activeStep) && (
@@ -191,7 +193,7 @@ const CourseEdit = (props) => {
                         )}
 
                         <Button onClick={handleNext}>
-                            {activeStep === steps.length - 1 ? 'Save changes' : 'Next'}
+                            {activeStep === steps.length - 1 ? 'Сохранить' : 'Далее'}
                         </Button>
                     </Box>
                 </React.Fragment>
@@ -227,7 +229,7 @@ const CourseDataComponent = (props) => {
              autoComplete="off">
                 <TextField
                     id="title"
-                    label="Title"
+                    label="Название"
                     variant="outlined"
                     value={courseTitle}
                     onChange={(e) => {
@@ -240,7 +242,7 @@ const CourseDataComponent = (props) => {
                 />
                 <TextField
                     id="desc"
-                    label="Desc"
+                    label="Описание"
                     variant="outlined"
                     value={courseDesc}
                     onChange={(e) => {
@@ -347,6 +349,19 @@ const DndList = (props) => {
         }
     }
 
+    const getLessonType = (type) => {
+        switch (type) {
+            case "quiz":
+                return(<Chip label="Тест" color={"primary"} size="small" variant="filled" />)
+            case "lecture":
+                return(<Chip label="Лекция" color="success" size="small" variant="filled" />)
+            case "video":
+                return(<Chip label="Видео" color={"error"} size="small" variant="filled" />)
+            default:
+                return(<Chip label="---" size="small" variant="filled" />);
+        }
+    }
+
     // const handleChange = (event) => {
     //     const {name, value} = event.target
     //     setData(state => {
@@ -355,137 +370,139 @@ const DndList = (props) => {
     // }
 
     return (
-        <Box sx={{ display:'flex', flexDirection:'row'}}>
-            <Box sx={{ flexGrow:3, marginInlineEnd:10}}>
-                <TabContext value={tabVal}>
-                    <Box sx={{borderBottom: 1, borderColor: 'divider'}}>
-                        <TabList variant={"fullWidth"} centered onChange={handleTabChange}>
-                            <Tab value="quiz" label={"Quiz"}/>
-                            <Tab value="lecture" label={"Lecture"}/>
-                            <Tab value="video" label={"Video"}/>
-                        </TabList>
-                    </Box>
-                    <TabPanel value="quiz">
-                        <Box sx={{padding:3}}>
-                            {(quizList && quizList.length > 0) ? quizList.map(q => (
-                                    <QuizCard key={q.id} quiz={q} showActions={false} getChildData={getChildData}/>))
-                                :(<Typography>No data</Typography>)}
+        // <Box sx={{ display:'flex', flexDirection:'row'}}>
+        <Grid container spacing={2} justifyContent="center" paddingTop={2}>
+            <Grid item xs={12} sm={12} md={12} lg={6}>
+                <Box >
+                    <TabContext value={tabVal}>
+                        <Box sx={{borderBottom: 1, borderColor: 'divider'}}>
+                            <TabList variant={"fullWidth"} centered onChange={handleTabChange}>
+                                <Tab value="quiz" label={"Тесты"}/>
+                                <Tab value="lecture" label={"Лекции"}/>
+                                <Tab value="video" label={"Видео"}/>
+                            </TabList>
                         </Box>
-                    </TabPanel>
-                    <TabPanel value="lecture">
-                        <Box>
-                            {(lectureList && lectureList.length > 0) ? lectureList.map(l => (
-                                    <LectureCard key={l.id} lecture={l} showActions={false} getChildData={getChildData} />))
-                                :(<Typography>No data</Typography>)}
-                        </Box>
-                    </TabPanel>
-                    <TabPanel value="video">
-                        <Box>
-                            {(videoList && videoList.length > 0) ? videoList.map(v => (
-                                    <VideoCard key={v.id} video={v} showActions={false} getChildData={getChildData}/>))
-                                :(<Typography>No data</Typography>)}
-                        </Box>
-                    </TabPanel>
-                </TabContext>
-            </Box>
-            <DragDropContext onDragEnd={onDragEnd}>
-                <Box sx={{ mt: 2, mb: 1, flexGrow:1 }}>
-                    {/*<Paper elevation={3}>*/}
-                    <Droppable droppableId={"droppable"}>
-                        {(provided) => (
-                            <div
-                                {...provided.droppableProps}
-                                ref={provided.innerRef}>
-                                <Paper sx={{ padding:3}}
-                                       elevation={3}
-                                >
-                                    {data.map((val,index) => (
-                                        <Draggable
-                                            key={val.uuid}
-                                            draggableId={val.uuid}
-                                            index={index}
-                                        >
-                                            {(provided1) => (
-                                                <div
-                                                    ref={provided1.innerRef}
-                                                    {...provided1.draggableProps}
-                                                    {...provided1.dragHandleProps}
-                                                >
-                                                    <Card
-                                                        sx={{marginTop:2}}
-                                                        // ContainerProps={{ ref: provided.innerRef }}
-                                                        // {...provided1.draggableProps}
-                                                        // {...provided1.dragHandleProps}
-                                                    >
-                                                        <CardHeader
-                                                            title={`${index+1}. ${val.type} - ${val.title}`}
-                                                            subheader={
-                                                                (val.type === "quiz") && (
-                                                                    <Box>
-                                                                        <FormControl sx={{ m: 1, minWidth: 120 }} size="small">
-                                                                            <InputLabel id="demo-select-small">Кол-во попыток</InputLabel>
-                                                                            <Select
-                                                                                labelId="select-try"
-                                                                                id="select-try-id"
-                                                                                value={val.totalTries || 1}
-                                                                                label="Попытка"
-                                                                                name={"totalTries"}
-                                                                                onChange={(event) => {
-                                                                                    const newVal = event.target.value
-                                                                                    setData(state => {
-                                                                                        let copy = [...state]
-                                                                                        copy[index].totalTries = newVal
-                                                                                        return copy
-                                                                                    })
-                                                                                }}
-                                                                            >
-                                                                                <MenuItem value={1}>1</MenuItem>
-                                                                                <MenuItem value={2}>2</MenuItem>
-                                                                                <MenuItem value={3}>3</MenuItem>
-                                                                                <MenuItem value={4}>4</MenuItem>
-                                                                                <MenuItem value={5}>5</MenuItem>
-                                                                            </Select>
-                                                                        </FormControl>
-                                                                        <TextField
-                                                                            id="outlined-number"
-                                                                            label="Number"
-                                                                            type="number"
-                                                                            InputLabelProps={{
-                                                                                shrink: true,
-                                                                            }}
-                                                                        />
-                                                                    </Box>
-                                                                )
-                                                            }
-                                                            action={
-                                                                <IconButton onClick={() => {
-                                                                    let copy = []
-                                                                    setData(state => {
-                                                                        copy = state.filter((val, i) => i !== index)
-                                                                        return copy
-                                                                    })
-                                                                    props.saveCourseSteps(copy)
-                                                                }}>
-                                                                    <RemoveCircleIcon sx={{color:"#c92222"}}/>
-                                                                </IconButton>}
-                                                        />
-                                                        <CardActions>
-
-                                                        </CardActions>
-                                                    </Card>
-                                                </div>
-                                            )}
-                                        </Draggable>
-                                    ))}
-                                    {provided.placeholder}
-                                </Paper>
-                            </div>
-                        )}
-                    </Droppable>
-                    {/*</Paper>*/}
+                        <TabPanel value="quiz">
+                            <Stack direction={"column"} spacing={2}>
+                                {(quizList && quizList.length > 0) ? quizList.map(q => (
+                                        <QuizCard key={q.id} quiz={q} showActions={false} getChildData={getChildData}/>))
+                                    :(<Typography variant={"subtitle1"}>Данные отсутствуют</Typography>)}
+                            </Stack>
+                        </TabPanel>
+                        <TabPanel value="lecture">
+                            <Stack direction={"column"} spacing={2}>
+                                {(lectureList && lectureList.length > 0) ? lectureList.map(l => (
+                                        <LectureCard key={l.id} lecture={l} showActions={false} getChildData={getChildData} />))
+                                    :(<Typography variant={"subtitle1"}>Данные отсутствуют</Typography>)}
+                            </Stack>
+                        </TabPanel>
+                        <TabPanel value="video">
+                            <Stack direction={"column"} spacing={2}>
+                                {(videoList && videoList.length > 0) ? videoList.map(v => (
+                                        <VideoCard key={v.id} video={v} showActions={false} getChildData={getChildData}/>))
+                                    :(<Typography variant={"subtitle1"}>Данные отсутствуют</Typography>)}
+                            </Stack>
+                        </TabPanel>
+                    </TabContext>
                 </Box>
-            </DragDropContext>
-        </Box>)
+            </Grid>
+            <Grid item xs={12} sm={12} md={12} lg={6}>
+                <DragDropContext onDragEnd={onDragEnd}>
+                    <Box sx={{ mt: 2, mb: 1, flexGrow:1 }}>
+                        {/*<Paper elevation={3}>*/}
+                        <Droppable droppableId={"droppable"}>
+                            {(provided) => (
+                                <div
+                                    {...provided.droppableProps}
+                                    ref={provided.innerRef}>
+                                    <Box sx={{ padding:3}}
+                                         elevation={3}
+                                         borderRadius={1} border={2} borderColor={"#009be5"}
+                                    >
+                                        <Typography variant={"h5"}>Этапы курса</Typography>
+                                        {(data && data.length !== 0) ? data.map((val,index) => (
+                                            <Draggable
+                                                key={val.uuid}
+                                                draggableId={val.uuid}
+                                                index={index}
+                                            >
+                                                {(provided1) => (
+                                                    <div
+                                                        ref={provided1.innerRef}
+                                                        {...provided1.draggableProps}
+                                                        {...provided1.dragHandleProps}
+                                                    >
+                                                        <Card
+                                                            sx={{marginTop:2}}
+                                                            elevation={3}
+                                                            // ContainerProps={{ ref: provided.innerRef }}
+                                                            // {...provided1.draggableProps}
+                                                            // {...provided1.dragHandleProps}
+                                                        >
+                                                            <CardHeader
+                                                                title={<Typography variant={"h6"}>{`${index+1}. ${val.title}`}</Typography>}
+                                                                subheader={
+                                                                    (val.type === "quiz") && (
+                                                                        <Box>
+                                                                            <FormControl sx={{ m: 1, minWidth: 120 }} size="small">
+                                                                                <InputLabel id="demo-select-small">Кол-во попыток</InputLabel>
+                                                                                <Select
+                                                                                    labelId="select-try"
+                                                                                    id="select-try-id"
+                                                                                    value={val.totalTries || 1}
+                                                                                    label="Кол-во попыток"
+                                                                                    name={"totalTries"}
+                                                                                    onChange={(event) => {
+                                                                                        const newVal = event.target.value
+                                                                                        setData(state => {
+                                                                                            let copy = [...state]
+                                                                                            copy[index].totalTries = newVal
+                                                                                            return copy
+                                                                                        })
+                                                                                    }}
+                                                                                >
+                                                                                    <MenuItem value={1}>1</MenuItem>
+                                                                                    <MenuItem value={2}>2</MenuItem>
+                                                                                    <MenuItem value={3}>3</MenuItem>
+                                                                                    <MenuItem value={4}>4</MenuItem>
+                                                                                    <MenuItem value={5}>5</MenuItem>
+                                                                                </Select>
+                                                                            </FormControl>
+                                                                        </Box>
+                                                                    )
+                                                                }
+                                                                action={
+                                                                    <IconButton onClick={() => {
+                                                                        let copy = []
+                                                                        setData(state => {
+                                                                            copy = state.filter((val, i) => i !== index)
+                                                                            return copy
+                                                                        })
+                                                                        props.saveCourseSteps(copy)
+                                                                    }}>
+                                                                        <RemoveIcon sx={{color:"#c92222"}}/>
+                                                                    </IconButton>}
+                                                            />
+                                                            <CardActions>
+                                                                {getLessonType(val.type)}
+                                                            </CardActions>
+                                                        </Card>
+                                                    </div>
+                                                )}
+                                            </Draggable>
+                                        )) : (<Typography variant={"subtitle1"}>Список пуст</Typography>)}
+                                        {provided.placeholder}
+                                    </Box>
+                                </div>
+                            )}
+                        </Droppable>
+                        {/*</Paper>*/}
+                    </Box>
+                </DragDropContext>
+            </Grid>
+        </Grid>
+        // </Box>)
+        )
 }
 
 export default CourseEdit

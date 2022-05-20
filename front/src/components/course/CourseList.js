@@ -8,7 +8,7 @@ import {
     CardActions,
     CardContent,
     CardHeader, Checkbox,
-    IconButton,
+    IconButton, Stack,
     Typography
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
@@ -36,23 +36,27 @@ const CourseList = (props) => {
     },[props])
 
     return (
-        <Box >
-            {(courseList && courseList.length > 0) ?
-                courseList.map((val, index) => (
-                    <CourseCard course={val} isInChooser={false} key={val.id} />
-                ))
-                : (<Typography variant={"h4"}>Записи отсутсвуют</Typography>)}
-            { !props.showChooserAction && (
-                <Button onClick={(e) => {
-                    httpCommon.post("/api/course",{})
-                        .then(res => {
-                            props.history.push(`/course/${res.data.id}/edit`)
-                        })
-                        .catch(err => {
-                            console.log(err)
-                        })
-                }}>New course</Button>
-            )}
+        <Box padding={2}>
+            <Typography variant={"h3"} marginBottom={2}>Курсы</Typography>
+            <Stack direction={"column"} spacing={2}>
+                {(courseList && courseList.length > 0) ?
+                    courseList.map((val, index) => (
+                        <CourseCard course={val} isInChooser={false} key={val.id} />
+                    ))
+                    : (<Typography variant={"h4"}>Записи отсутсвуют</Typography>)}
+                { !props.showChooserAction && (
+                    <Button
+                        onClick={(e) => {
+                        httpCommon.post("/api/course",{})
+                            .then(res => {
+                                props.history.push(`/course/${res.data.id}/edit`)
+                            })
+                            .catch(err => {
+                                console.log(err)
+                            })
+                    }}>Создать новый курс</Button>
+                )}
+            </Stack>
         </Box>
     )
 }

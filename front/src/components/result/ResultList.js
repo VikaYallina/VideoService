@@ -9,7 +9,7 @@ import {
     CardHeader, Chip, CircularProgress,
     Collapse, Dialog, DialogActions, DialogContent, DialogTitle,
     Divider,
-    IconButton, List, ListItem, ListItemText, Paper, Stack,
+    IconButton, List, ListItem, ListItemText, ListSubheader, Paper, Stack,
     styled, TextField,
     Typography
 } from "@mui/material";
@@ -23,51 +23,9 @@ import CheckIcon from '@mui/icons-material/Check';
 import {generateCourseResult} from "../../helpers/utils";
 import CourseCard from "../course/component/CourseCard";
 import {connect} from "react-redux";
+import AddIcon from '@mui/icons-material/Add';
 
 
-const ExpandMore = styled((props) => {
-    const { expand, ...other } = props;
-    return <IconButton {...other} />;
-})(({ theme, expand }) => ({
-    transform: !expand ? 'rotate(0deg)' : 'rotate(180deg)',
-    marginLeft: 'auto',
-    transition: theme.transitions.create('transform', {
-        duration: theme.transitions.duration.shortest,
-    }),
-}));
-
-function CircularProgressWithLabel(props) {
-    return (
-        <Box sx={{ position: 'relative', display: 'inline-flex' }}>
-            <CircularProgress variant="determinate" {...props} />
-            <Box
-                sx={{
-                    top: 0,
-                    left: 0,
-                    bottom: 0,
-                    right: 0,
-                    position: 'absolute',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                }}
-            >
-                <Typography variant="caption" component="div" color="text.secondary">
-                    {`${Math.round(props.value)}%`}
-                </Typography>
-            </Box>
-        </Box>
-    );
-}
-
-CircularProgressWithLabel.propTypes = {
-    /**
-     * The value of the progress indicator for the determinate variant.
-     * Value between 0 and 100.
-     * @default 0
-     */
-    value: PropTypes.number.isRequired,
-};
 
 const ResultList = (props) => {
     const {user} = props
@@ -76,6 +34,13 @@ const ResultList = (props) => {
     const [departments, setDepartments] = useState([])
     const [openDialog, setOpenDialog] = useState({})
     const [openCourseDialog, setOpenCourseDialog] = useState({})
+
+
+    const [courseChooseValue, setCourseChooseValue] = useState(null)
+    const [courseChooseInput, setCourseChooseInput] = useState("")
+
+    const [emplChooseValue, setEmplChooseValue] = useState(null)
+    const [emplChooseInput, setEmplChooseInput] = useState("")
 
 
     useEffect(() => {
@@ -94,7 +59,7 @@ const ResultList = (props) => {
                                     r.data.forEach(val => {
                                         eEx[val.id] = false
                                         val.course_progresses.forEach(v =>{
-                                            dOpen[v.id] = false
+                                            dOpen[v.c_id] = false
                                         })
                                     })
                                     setExpanded(eEx)
@@ -111,9 +76,14 @@ const ResultList = (props) => {
             .catch(err => console.log(err))
     }, [])
 
+    useEffect(() => {
+        console.log(emplList)
+    },[emplList])
+
     const [courseList, setCourseList] = useState([])
     const [expanded, setExpanded] = useState({})
 
+    // Render cards by department
     const renderCards = (depId) => {
         let e = emplList.filter(e => e.department.id === depId)
 
@@ -121,36 +91,40 @@ const ResultList = (props) => {
             e = e.filter(val => val.id === emplChooseValue.id)
         }
 
-        return e.map(val => (
-            <Card key={val.id}>
-                <CardHeader
-                    title={`${val.lastname} ${val.firstname}`}
-                    action={
-                        <ExpandMore
-                            expand={expanded[val.id]}
-                            onClick={() => {
-                                setExpanded(state => {
-                                    let copy = {...state}
-                                    copy[val.id] = !state[val.id]
-                                    return copy
-                                })
-                            }}
-                            aria-expanded={expanded[val.id]}
-                            aria-label="show more"
-                        >
-                            <ExpandMoreIcon />
-                        </ExpandMore>
-                    }
-                />
-                <Divider></Divider>
-                <Collapse in={expanded[val.id]} timeout="auto" unmountOnExit>
-                    <CardContent>
-                        <Typography>Courses Results</Typography>
-                        {renderEmployeeResults(val)}
-                    </CardContent>
-                </Collapse>
-            </Card>
-        ))
+        return(<Box>
+            {(e && e.length!==0) ? e.map(val => (
+                <ListItem key={val.id} >
+                    <Card key={val.id} sx={{width:"100%"}}>
+                        <CardHeader
+                            title={`${val.lastname} ${val.firstname}`}
+                            action={
+                                <ExpandMore
+                                    expand={expanded[val.id]}
+                                    onClick={() => {
+                                        setExpanded(state => {
+                                            let copy = {...state}
+                                            copy[val.id] = !state[val.id]
+                                            return copy
+                                        })
+                                    }}
+                                    aria-expanded={expanded[val.id]}
+                                    aria-label="show more"
+                                >
+                                    <ExpandMoreIcon />
+                                </ExpandMore>
+                            }
+                        />
+                        <Divider></Divider>
+                        <Collapse in={expanded[val.id]} timeout="auto" unmountOnExit>
+                            <CardContent>
+                                <Typography>Результаты прохождения курсов</Typography>
+                                {renderEmployeeResults(val)}
+                            </CardContent>
+                        </Collapse>
+                    </Card>
+                </ListItem>
+            )) : (<Typography>Данные отсутствуют</Typography>)}
+        </Box>)
     }
 
     const renderEmployeeResults = (employee) => {
@@ -159,15 +133,15 @@ const ResultList = (props) => {
             course_prog = employee.course_progresses.filter(val => val.courseData.id === courseChooseValue.id)
         }
         if (course_prog && course_prog.length !== 0){
-            let items = course_prog.map(val => (
+            let items = course_prog.map((val, index) => (
                     <ListItem
                         divider={true}
                         disablePadding
-                        key={val.id}
+                        key={index}
                         alignItems="flex-start"
                         secondaryAction={
                             <IconButton onClick={() => {
-                                httpCommon.delete(`/api/courseprog/${val.id}`)
+                                httpCommon.delete(`/api/courseprog/${val.c_id}`)
                                     .then(() => {
                                         setEmplList(state => {
                                             let copy = [...state]
@@ -175,7 +149,7 @@ const ResultList = (props) => {
                                                 if (employee.id === e.id){
                                                     return {
                                                         ...e,
-                                                        course_progresses:e.course_progresses.filter(k => k.id !== val.id)
+                                                        course_progresses:e.course_progresses.filter(k => k.id !== val.c_id)
                                                     }
                                                 }else{
                                                     return e
@@ -190,29 +164,28 @@ const ResultList = (props) => {
                         <ListItemButton onClick={() => {
                             setOpenDialog(state => {
                                 let copy = {...state}
-                                copy[val.id] = true
+                                copy[val.c_id] = true
                                 return copy
                             })
                         }}>
                             <ListItemIcon>
-                                <CircularProgressWithLabel value={parseInt(val.completionRate, 10)} />
+                                <CircularProgressWithLabel value={parseInt(val.completionRate) || 2} />
                             </ListItemIcon>
                             <ListItemText
-                                primary={val.courseData.title}
-                                secondary="mmmm"
+                                primary={val.courseData && val.courseData.title ? val.courseData.title : "Без названия"}
+                                secondary={val.courseData && val.courseData.desc ? val.courseData.desc : "Описание отсутсвует"}
                             />
                         </ListItemButton>
                         <DialogComponent
-                            isOpen={openDialog[val.id]}
+                            isOpen={openDialog[val.c_id]}
                             resData={val}
                             handleClose={handleClose}
                         />
                     </ListItem>
             ))
             return (
-                <Box sx={{ width: '100%', bgcolor: 'background.paper' }}>
-                    <Paper>
-                        <List sx={{padding:3}} dense={true} component="nav">
+                <Box sx={{ width: '100%' }}>
+                        <List  dense={true} component="nav">
                             {items}
                         </List>
                         <CourseChooseDialog
@@ -221,17 +194,19 @@ const ResultList = (props) => {
                             courseList={courseList}
                             emplId={employee.id}
                         />
-                        <Button fullWidth onClick={() => {
+                        <Button
+                            variant={"contained"}
+                            fullWidth
+                            onClick={() => {
                             setOpenCourseDialog(state => {
                                 let copy = {...state}
                                 copy[employee.id] = true
                                 return copy
                             })
-                        }}>+</Button>
-                    </Paper>
+                        }}><AddIcon/></Button>
                 </Box>)
         }else {
-            return (<Typography>No data</Typography>)
+            return (<Typography>Данные отсутствуют</Typography>)
         }
     }
 
@@ -268,14 +243,10 @@ const ResultList = (props) => {
         // }
     }
 
-    const [courseChooseValue, setCourseChooseValue] = useState(null)
-    const [courseChooseInput, setCourseChooseInput] = useState("")
 
-    const [emplChooseValue, setEmplChooseValue] = useState(null)
-    const [emplChooseInput, setEmplChooseInput] = useState("")
 
     return (<Box>
-        <Box>
+        <Box component={Paper} padding={2}>
             <Autocomplete
                 value={courseChooseValue}
                 onChange={(e, newVal) => {
@@ -290,7 +261,7 @@ const ResultList = (props) => {
                 id="blur-on-select"
                 blurOnSelect
                 renderInput={(params) => (
-                    <TextField {...params} label="Choose course" variant="standard" />
+                    <TextField {...params} label="Выберите курс" variant="standard"  />
                 )}
             />
             <Autocomplete
@@ -307,28 +278,39 @@ const ResultList = (props) => {
                 id="empl-select"
                 blurOnSelect
                 renderInput={(params) => (
-                    <TextField {...params} label="Employee course" variant="standard" />
+                    <TextField {...params} label="Выберите сотрудника" variant="standard" />
                 )}
             />
         </Box>
-        {
-            (departments && departments.length!==0) ?
-            departments.map(val => (
-                <div key={val.id}>
-                    <Typography>{val.name}</Typography>
-                    <Divider orientation="horizontal"/>
-                    {renderCards(val.id)}
-                </div>
-            ))
-            :
-            (<Typography>No departments</Typography>)
-        }
+        <Box marginTop={2}>
+            {
+                (departments && departments.length!==0) ?
+                    departments.map(val => (
+                        <div key={val.id}>
+                            <List
+                                component={Card}
+                                sx={{ width: '100%',  bgcolor: 'background.paper' }}
+                                subheader={
+                                <ListSubheader component="div" id="nested-list-subheader">
+                                    {val.name}
+                                </ListSubheader>}>
+                                {renderCards(val.id)}
+                            </List>
+                            {/*<Typography>{val.name}</Typography>*/}
+                            <Divider orientation="horizontal"/>
+
+                        </div>
+                    ))
+                    :
+                    (<Typography>Отделы отсутсвуют</Typography>)
+            }
+        </Box>
     </Box>)
 }
 
 const DialogComponent = (props) => {
     const [open, setOpen] = useState(false)
-    const [result, setResult] = useState(props ? props.resData : {id:0})
+    const [result, setResult] = useState(props ? props.resData : {c_id:0})
 
     useEffect(() => {
         setOpen(props.isOpen)
@@ -341,7 +323,7 @@ const DialogComponent = (props) => {
     }, [props])
 
     const handleClose = () => {
-        props.handleClose(result.id)
+        props.handleClose(result.c_id)
     }
 
     return (
@@ -356,7 +338,7 @@ const DialogComponent = (props) => {
             <Divider />
             <DialogContent>
                 <Divider variant="middle" >
-                    <Chip label={"QUIZ"}/>
+                    <Chip label={"ТЕСТ"}/>
                 </Divider>
                 <List>
                     {result && result.quiz.length !== 0 ?
@@ -389,7 +371,7 @@ const DialogComponent = (props) => {
                     }
                 </List>
                 <Divider variant="middle" >
-                    <Chip label={"LECTURE"}/>
+                    <Chip label={"ЛЕКЦИЯ"}/>
                 </Divider>
                 <List>
                     {result.lecture && result.lecture.length !==0 ?
@@ -421,7 +403,7 @@ const DialogComponent = (props) => {
                     }
                 </List>
                 <Divider variant="middle" >
-                    <Chip label={"VIDEO"}/>
+                    <Chip label={"ВИДЕО"}/>
                 </Divider>
                 <List>
                     {result.video && result.video.length !==0 ?
@@ -454,7 +436,7 @@ const DialogComponent = (props) => {
                 </List>
             </DialogContent>
             <DialogActions>
-                <Button onClick={handleClose}>Close</Button>
+                <Button onClick={handleClose}>Закрыть</Button>
             </DialogActions>
         </Dialog>
     )
@@ -508,31 +490,78 @@ const CourseChooseDialog = (props) => {
             open={open}
             scroll={"body"}
             onClose={handleCloseDialog}
-            maxWidth={"md"}
-            fullWidth={false}
+            maxWidth={"sm"}
+            fullWidth={true}
         >
-            <DialogTitle >Fuck off</DialogTitle>
+            <DialogTitle >Выберите курс</DialogTitle>
             <DialogContent>
-                {courseList ?
-                    courseList.map((course, i) => (
-                        <CourseCard
-                            key={i}
-                            course={course}
-                            isInChooser={true}
-                            sendDataToParent={receiveData}
-                            index={i}
-                            isChecked={checkedCourses[i]}
-                        />
-                    )) :
-                    (<Typography variant={"h5"}>No data</Typography>)}
+                <Stack spacing={2}>
+                    {courseList ?
+                        courseList.map((course, i) => (
+                            <CourseCard
+                                key={i}
+                                course={course}
+                                isInChooser={true}
+                                sendDataToParent={receiveData}
+                                index={i}
+                                isChecked={checkedCourses[i]}
+                            />
+                        )) :
+                        (<Typography variant={"h5"}>Данные отсутствуют</Typography>)}
+                </Stack>
             </DialogContent>
             <DialogActions>
-                <Button onClick={handleSuccessCloseDialog}>Save</Button>
-                <Button onClick={handleCloseDialog}>Cancel</Button>
+                <Button onClick={handleSuccessCloseDialog}>Сохранить</Button>
+                <Button onClick={handleCloseDialog}>Отмена</Button>
             </DialogActions>
         </Dialog>
     )
 }
+
+
+const ExpandMore = styled((props) => {
+    const { expand, ...other } = props;
+    return <IconButton {...other} />;
+})(({ theme, expand }) => ({
+    transform: !expand ? 'rotate(0deg)' : 'rotate(180deg)',
+    marginLeft: 'auto',
+    transition: theme.transitions.create('transform', {
+        duration: theme.transitions.duration.shortest,
+    }),
+}));
+
+function CircularProgressWithLabel(props) {
+    return (
+        <Box sx={{ position: 'relative', display: 'inline-flex' }}>
+            <CircularProgress variant="determinate" {...props} />
+            <Box
+                sx={{
+                    top: 0,
+                    left: 0,
+                    bottom: 0,
+                    right: 0,
+                    position: 'absolute',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                }}
+            >
+                <Typography variant="caption" component="div" color="text.secondary">
+                    {`${Math.round(props.value)}%`}
+                </Typography>
+            </Box>
+        </Box>
+    );
+}
+
+CircularProgressWithLabel.propTypes = {
+    /**
+     * The value of the progress indicator for the determinate variant.
+     * Value between 0 and 100.
+     * @default 0
+     */
+    value: PropTypes.number.isRequired,
+};
 
 const mapStateToProps = (state) => {
     const { user } = state.currentUser

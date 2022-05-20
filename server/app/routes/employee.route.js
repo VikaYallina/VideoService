@@ -7,38 +7,38 @@ module.exports = function(app) {
     app.use(function(req, res, next){
         res.header(
             "Access-Control-Allow-Headers",
-            "x-access-token, Origin, Content-Type, Accept"
+            "x-access-token, Origin, Content-Type, Accept, Authorization"
         );
         next();
     })
 
     router.post(
         "/",
-        // [authJwt.verifyToken, authJwt.isAdmin],
+        [authJwt.verifyToken],
         employees.create);
 
     router.get(
         "/" ,
-        // [authJwt.verifyToken],
+        [authJwt.verifyToken],
         employees.findAll);
 
     router.get(
         "/:id",
-        // [authJwt.verifyToken],
+        [authJwt.verifyToken],
         employees.findOne);
 
     router.put("/:id",
-        // [authJwt.verifyToken, authJwt.isAdmin],
+        [authJwt.verifyToken],
         employees.update);
 
     router.delete(
         "/:id",
-        // [authJwt.verifyToken, authJwt.isAdmin],
+        [authJwt.verifyToken],
         employees.delete);
 
     router.delete(
         "/",
-        // [authJwt.verifyToken, authJwt.isAdmin],
+        [authJwt.verifyToken],
         employees.deleteAll);
 
     router.get(

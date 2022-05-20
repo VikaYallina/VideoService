@@ -18,7 +18,7 @@ export const loginAction = (email, password) => async (dispatch) => {
                     type: userConstants.LOGIN_SUCCESS,
                     user
                 });
-                history.push('/');
+                history.push('/dashboard');
             }
         )
         .catch(error => {

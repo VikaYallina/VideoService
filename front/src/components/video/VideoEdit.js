@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from "react";
-import {Box, Button, TextField} from "@mui/material";
+import {Box, Button, Grid, Paper, Stack, TextField} from "@mui/material";
 import {VideoService} from "../../services/video.service";
 import {Alert} from "@mui/lab";
 import {connect, useDispatch} from "react-redux";
@@ -26,10 +26,10 @@ const VideoEdit = (props) => {
                 })
                     .catch(err => {
                         console.log(err)
-                        props.history.push("/quiz")
+                        props.history.push("/kb")
                     })
             }else{
-                props.history.push("/quiz")
+                props.history.push("/kb")
             }
         }
     }, [])
@@ -52,8 +52,7 @@ const VideoEdit = (props) => {
             };
             dispatch(updateVideo(id,formData,config))
                 .then(() => {
-                    console.log("HERERERERERER")
-                    props.history.push(`/quiz`)
+                    props.history.push(`/kb`)
                 })
                 .catch(err => {
                     console.log(err)
@@ -72,49 +71,57 @@ const VideoEdit = (props) => {
     }
 
     return (
-        <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+        <Box component={Paper} padding={2}>
             {error ? (<Alert severity="error">{errorText}</Alert>) : (<div></div>)}
-            <form onSubmit={handleSubmit}>
-                <TextField
-                    id={"title"}
-                    name={"title"}
-                    value={title}
-                    onChange={(e) => {
-                        const value = e.target.value
-                        setTitle(value)
-                    }}
-                />
-                <TextField
-                    id={"desc"}
-                    name={"desc"}
-                    value={desc}
-                    onChange={(e) => {
-                        const value = e.target.value
-                        setDesc(value)
-                    }}
-                />
-                <Button
-                    variant="contained"
-                    component="label"
-                >
-                    Upload File
-                    <input
-                        type="file"
-                        name={"video"}
-                        hidden
-                        required
-                        onChange={(e) => {
-                            console.log(e.target.files[0])
-                            setFile(e.target.files[0])
-                        }}
-                    />
-                </Button>
-                {/*<input type="file" name="video" onChange={(e) => {*/}
-                {/*    console.log(e.target.files[0])*/}
-                {/*    setFile(e.target.files[0])*/}
-                {/*}}/>*/}
-                <Button type={"submit"}>Submit</Button>
-            </form>
+            <Box component={"form"} onSubmit={handleSubmit}>
+                <Stack direction={"column"} spacing={2}>
+                    <Grid container spacing={2}>
+                        <Grid item xs={6} md={6}>
+                            <TextField
+                                id={"title"}
+                                name={"title"}
+                                label={"Название"}
+                                fullWidth
+                                value={title || ""}
+                                onChange={(e) => {
+                                    const value = e.target.value
+                                    setTitle(value)
+                                }}
+                            />
+                        </Grid>
+                        <Grid item xs={6} md={6}>
+                            <TextField
+                                fullWidth
+                                id={"desc"}
+                                name={"desc"}
+                                label={"Описание"}
+                                value={desc || ""}
+                                onChange={(e) => {
+                                    const value = e.target.value
+                                    setDesc(value)
+                                }}
+                            />
+                        </Grid>
+                    </Grid>
+                    <Button
+                        variant="contained"
+                        component="label"
+                    >
+                        Загрузить видео
+                        <input
+                            type="file"
+                            name={"video"}
+                            hidden
+                            required
+                            onChange={(e) => {
+                                console.log(e.target.files[0])
+                                setFile(e.target.files[0])
+                            }}
+                        />
+                    </Button>
+                    <Button type={"submit"}>Сохранить</Button>
+                </Stack>
+            </Box>
         </Box>
     )
 }

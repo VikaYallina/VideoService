@@ -1,12 +1,12 @@
-import React from "react";
+import React, {useEffect, useState} from "react";
 import {
     AppBar,
     Avatar,
     Box,
-    Button, Divider,
+    Button, Dialog, DialogActions, DialogContent, DialogTitle, Divider,
     Grid,
     IconButton,
-    Menu, MenuItem,
+    Menu, MenuItem, Stack,
     Tab,
     Tabs,
     Toolbar,
@@ -23,6 +23,7 @@ import {connect, useDispatch} from "react-redux";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import {Logout, PersonAdd, Settings} from "@mui/icons-material";
 import {logoutAction} from "../../actions/authentication.action";
+import EmployeeService from "../../services/employee.service";
 
 const lightColor = 'rgba(255, 255, 255, 0.7)';
 
@@ -35,45 +36,24 @@ const tabValues = [
     "/course/result"
 ]
 
-function AccountMenu() {
-    const [anchorEl, setAnchorEl] = React.useState(null);
-    const open = Boolean(anchorEl);
-    const handleClick = (event) => {
-        setAnchorEl(event.currentTarget);
-    };
-    const handleClose = () => {
-        setAnchorEl(null);
-    };
-    return (
-        <React.Fragment>
-            <Box sx={{ display: 'flex', alignItems: 'center', textAlign: 'center' }}>
-                <Typography sx={{ minWidth: 100 }}>Contact</Typography>
-                <Typography sx={{ minWidth: 100 }}>Profile</Typography>
-                <Tooltip title="Account settings">
-                    <IconButton
-                        onClick={handleClick}
-                        size="small"
-                        sx={{ ml: 2 }}
-                        aria-controls={open ? 'account-menu' : undefined}
-                        aria-haspopup="true"
-                        aria-expanded={open ? 'true' : undefined}
-                    >
-                        <Avatar sx={{ width: 32, height: 32 }}>M</Avatar>
-                    </IconButton>
-                </Tooltip>
-            </Box>
-
-        </React.Fragment>
-    );
-}
 
 function Header(props) {
     const {onDrawerToggle, user} = props;
+    const [employeeData, setEmployeeData] = useState(null)
+    const [openDialog, setOpenDialog] = useState(false)
 
     const [anchorEl, setAnchorEl] = React.useState(null);
     const open = Boolean(anchorEl);
 
     const dispatch = useDispatch()
+
+    useEffect(() => {
+        if (user) {
+            EmployeeService.get(user.employeeId)
+                .then(res => setEmployeeData(res.data))
+                .catch(err => alert(err.message))
+        }
+    }, [user])
 
     const handleClick = (event) => {
         setAnchorEl(event.currentTarget);
@@ -84,6 +64,10 @@ function Header(props) {
 
     const handleLogout = () => {
         dispatch(logoutAction())
+    }
+
+    const handleDialog = () => {
+        setOpenDialog(false)
     }
 
     return (
@@ -133,18 +117,18 @@ function Header(props) {
                                     },
                                 },
                             }}
-                            transformOrigin={{ horizontal: 'right', vertical: 'top' }}
-                            anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+                            transformOrigin={{horizontal: 'right', vertical: 'top'}}
+                            anchorOrigin={{horizontal: 'right', vertical: 'bottom'}}
                         >
-                            <MenuItem>
-                                <Avatar /> Profile
+                            <MenuItem onClick={() => setOpenDialog(true)}>
+                                <Avatar/> Профиль
                             </MenuItem>
-                            <Divider />
+                            <Divider/>
                             <MenuItem onClick={handleLogout}>
                                 <ListItemIcon>
-                                    <Logout fontSize="small" />
+                                    <Logout fontSize="small"/>
                                 </ListItemIcon>
-                                Logout
+                                Выйти
                             </MenuItem>
                         </Menu>
                         <Grid item xs/>
@@ -166,78 +150,59 @@ function Header(props) {
                         {/*    </Link>*/}
                         {/*</Grid>*/}
                         <Grid item>
-                            <Tooltip title="Alerts • No alerts">
-                                <IconButton color="inherit">
-                                    <NotificationsIcon/>
-                                </IconButton>
-                            </Tooltip>
-                        </Grid>
-                        <Grid item>
                             <Tooltip title={JSON.stringify(user) || "No data"}>
                                 <IconButton
                                     onClick={handleClick}
                                     size="small"
-                                    sx={{ ml: 2 }}
+                                    sx={{ml: 2}}
                                     aria-controls={open ? 'account-menu' : undefined}
                                     aria-haspopup="true"
                                     aria-expanded={open ? 'true' : undefined}
                                 >
-                                    <Avatar sx={{ width: 32, height: 32 }}>M</Avatar>
+                                    <Avatar sx={{
+                                        width: 32,
+                                        height: 32
+                                    }}>{employeeData ? employeeData.lastname.charAt(0) : "?"}</Avatar>
                                 </IconButton>
                             </Tooltip>
+                            <UserInfoDialog open={openDialog} handleDialog={handleDialog} employeeData={employeeData}/>
                         </Grid>
                     </Grid>
                 </Toolbar>
             </AppBar>
-            {/*<AppBar*/}
-            {/*    component="div"*/}
-            {/*    color="primary"*/}
-            {/*    position="static"*/}
-            {/*    elevation={0}*/}
-            {/*    sx={{zIndex: 0}}*/}
-            {/*>*/}
-                {/*<Toolbar>*/}
-                {/*    <Grid container alignItems="center" spacing={1}>*/}
-                {/*        <Grid item xs>*/}
-                {/*            <Typography color="inherit" variant="h5" component="h1">*/}
-                {/*                Authentication*/}
-                {/*            </Typography>*/}
-                {/*        </Grid>*/}
-                {/*        <Grid item>*/}
-                {/*            <Button*/}
-                {/*                sx={{borderColor: lightColor}}*/}
-                {/*                variant="outlined"*/}
-                {/*                color="inherit"*/}
-                {/*                size="small"*/}
-                {/*            >*/}
-                {/*                Web setup*/}
-                {/*            </Button>*/}
-                {/*        </Grid>*/}
-                {/*        <Grid item>*/}
-                {/*            <Tooltip title="Help">*/}
-                {/*                <IconButton color="inherit">*/}
-                {/*                    <HelpIcon/>*/}
-                {/*                </IconButton>*/}
-                {/*            </Tooltip>*/}
-                {/*        </Grid>*/}
-                {/*    </Grid>*/}
-                {/*</Toolbar>*/}
-            {/*</AppBar>*/}
-            {/*<AppBar component="div" position="static" elevation={0} sx={{zIndex: 0}}>*/}
-            {/*    <Tabs value={ tabValues.includes(history.location.pathname) ? history.location.pathname : false} textColor="inherit"*/}
-            {/*          onChange={(e, val) => {*/}
-            {/*              history.push(val)*/}
-            {/*          }}>*/}
-            {/*        <Tab label="Knowledge base" value={tabValues[0]}/>*/}
-            {/*        <Tab label="Add user" value={tabValues[1]}/>*/}
-            {/*        <Tab label="Courses" value={tabValues[2]}/>*/}
-            {/*        <Tab label="Course Edit" value={tabValues[3]}/>*/}
-            {/*        <Tab label="Course Choose" value={tabValues[4]}/>*/}
-            {/*        <Tab label="C Result" value={tabValues[5]} />*/}
-            {/*    </Tabs>*/}
-            {/*</AppBar>*/}
         </React.Fragment>
     );
+}
+
+const UserInfoDialog = (props) => {
+    const {open, handleDialog, employeeData} = props
+
+    useEffect(() => {
+        console.log(employeeData)
+    }, [employeeData])
+    return (
+        <Dialog
+            open={open}
+            onClose={() => handleDialog()}
+            maxWidth={"sm"}
+        >
+            <DialogTitle>Данные о сотруднике</DialogTitle>
+            <DialogContent>
+                {employeeData ? (
+                    <Stack direction={"column"}>
+                        <Typography>{`ФИО: ${employeeData.lastname} ${employeeData.firstname} ${employeeData.middlename}`}</Typography>
+                        <Typography>{`Дата рождения: ${new Date(employeeData.birthdate).toLocaleDateString()}`}</Typography>
+                        <Typography>{`Пол: ${employeeData.gender === "m" ? "Мужской" : "Женский"}`}</Typography>
+                        <Typography>{`Отдел: ${employeeData.department ? employeeData.department.name : "-"}`}</Typography>
+                        <Typography>{`Дата начала работы: ${new Date(employeeData.hire_date).toLocaleDateString()}`}</Typography>
+                    </Stack>
+                ) : (<Typography>Данные отсутствуют</Typography>)}
+
+            </DialogContent>
+            <DialogActions>
+                <Button onClick={() => handleDialog()}>Закрыть</Button>
+            </DialogActions>
+        </Dialog>)
 }
 
 Header.propTypes = {
@@ -245,7 +210,7 @@ Header.propTypes = {
 };
 
 const mapStateToProps = (state) => {
-    const { user } = state.currentUser
+    const {user} = state.currentUser
     console.log(user)
     return {user}
 }

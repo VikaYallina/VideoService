@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from "react";
-import {Button, Card, ListGroup} from "react-bootstrap";
-import {Pagination, PaginationItem} from "@mui/material";
+import { Card, ListGroup} from "react-bootstrap";
+import {Button, Divider, Pagination, PaginationItem} from "@mui/material";
 import Question from "./Question";
 import {connect, useDispatch, useSelector} from "react-redux";
 import shuffle from "../../helpers/utils";
@@ -34,6 +34,7 @@ const Quiz = (props) => {
     }])
     const [currentIndex, setCurrentIndex] = useState(0)
     const [currentQuestion, setCurrentQuestion] = useState(questionsList[currentIndex])
+    const [points_borderline, setPointsBorderline] = useState(0)
 
 
     const [options, setOptions] = useState([])
@@ -68,10 +69,12 @@ const Quiz = (props) => {
             setQuestionsList(p.quiz.questions)
             setCurrentQuestion(p.quiz.questions[0])
             setOnInit(false)
+            setPointsBorderline(p.quiz.points_borderline)
         } else {
             if (p.id) {
                 QuizService.get(p.id).then(res => {
                     console.log("AXIOS")
+                    setPointsBorderline(res.data.points_borderline)
                     setQuestionsList(res.data.questions)
                     setCurrentQuestion(res.data.questions[0])
                     setOnInit(false)
@@ -164,11 +167,17 @@ const Quiz = (props) => {
     }
 
     const saveRes = () => {
+        let answers = []
+        optionActive.forEach((val, i) => {
+            if (val){
+                answers.push(options[i])
+            }
+        })
         const res = {
             qId: currentQuestion.id,
             options: options,
             selected: optionActive,
-            answers: selectedOptions
+            answers
         }
         console.log(res)
         setResults(arr => {
@@ -205,23 +214,47 @@ const Quiz = (props) => {
         for (let i = 0; i < questionsList.length; i++) {
             const q = questionsList[i]
             total += q.weight
+            let result = results.find(({qId}) => qId === q.id)
             if (results[i]) {
                 let curr_correct = 0
-                results[i].answers.forEach(ans => {
-                    console.log(ans)
-                    console.log(q.correct.length)
-                    console.log(q.weight / q.correct.length)
-                    curr_correct += q.correct.includes(ans) ? q.weight / q.correct.length : 0
-                })
+                switch (q.type) {
+                    case "single":
+                        curr_correct = areEqual(result.answers, q.correct) ? q.weight : 0
+                        break
+                    case "multi":
+                        result.answers.forEach(ans => {
+                            console.log(ans)
+                            console.log(q.correct.length)
+                            console.log(q.weight / q.correct.length)
+                            curr_correct += q.correct.includes(ans) ? q.weight / q.correct.length : 0
+                        })
+                        break
+                    default:
+                        break
+                }
                 res_list.push({
                     question: q,
-                    selected: results[i],
+                    selected: result,
                     correct: curr_correct
                 })
                 correct += curr_correct
             }
         }
         return {total, correct, res: res_list}
+    }
+
+    const  areEqual = (array1, array2) => {
+        if (array1.length === array2.length) {
+            return array1.every(element => {
+                if (array2.includes(element)) {
+                    return true;
+                }
+
+                return false;
+            });
+        }
+
+        return false;
     }
 
 
@@ -235,16 +268,17 @@ const Quiz = (props) => {
             correct,
             result: res
         }
-        console.log(JSON.stringify(payload))
+        console.log("RESULTS", payload)
         dispatch(addResult(payload))
             .then(response => {
                 if (typeof propsValue.showQuiz === "function" ) {propsValue.showQuiz({
                     id: propsValue.id,
                     result: response,
-                    show:false
+                    show:false,
+                    points_borderline
                 })}
                 else {
-                    propsValue.history.push(`/result/${response.quizId}/${response.id}`)
+                    propsValue.history.push(`/kb`)
                 }
             })
             .catch(err => {
@@ -275,8 +309,11 @@ const Quiz = (props) => {
                             </ListGroup>
                         </Card.Body>
                     </Card>
-                    <Button onClick={handleNextQ}>next</Button>
-                    <Button onClick={handleResult}>help</Button>
+                </Card.Body>
+                <Divider/>
+                <Card.Body>
+                    <Button onClick={handleNextQ}>Следующий</Button>
+                    <Button onClick={handleResult}>Завершить тест</Button>
                 </Card.Body>
             </Card>) : (<h3>Loading</h3>)}
         </div>

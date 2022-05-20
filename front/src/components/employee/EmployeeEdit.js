@@ -103,7 +103,10 @@ const EmployeeEdit = (props) => {
                     handleClose()
                     resetData()
                 })
-                .catch(err => setErrorMessage(err.message))
+                .catch(err => {
+                    setLoading(false)
+                    setErrorMessage(err.message)
+                })
         } else {
             dispatch(updateEmployee(employeeData.id, data))
                 .then(() => {
@@ -111,7 +114,10 @@ const EmployeeEdit = (props) => {
                     handleClose()
                     resetData()
                 })
-                .catch(err => setErrorMessage(err.message))
+                .catch(err => {
+                    setLoading(false)
+                    setErrorMessage(err.message)
+                })
         }
     }
 

@@ -12,7 +12,7 @@ import {
     CardActionArea,
     CardActions,
     CardContent,
-    CardHeader, CardMedia,
+    CardHeader, CardMedia, Grid,
     IconButton,
     Stack, Tab, Tabs,
     Typography
@@ -24,12 +24,17 @@ import {addVideo, removeVideo, retrieveVideos} from "../../actions/video.action"
 import VideoCard from "../video/VideoCard";
 import LectureCard from "../lecture/component/LectureCard";
 import QuizCard from "./component/QuizCard";
+import {userIsAdmin} from "../../helpers/utils";
 
 const QuizList = (props) => {
     // const [qList, setQlist] = useState([])
     const qList = useSelector(state => state.quiz)
     const lList = useSelector(state => state.lecture)
     const vList = useSelector(state => state.video)
+    const auth = useSelector(state => state.currentUser)
+
+    const [showActions, setShowActions] = useState(false)
+
     const dispatch = useDispatch()
 
     useEffect(() => {
@@ -37,6 +42,11 @@ const QuizList = (props) => {
         dispatch(retrieveAllLecture())
         dispatch(retrieveVideos())
     }, [])
+
+    useEffect(() => {
+        const isAdmin = userIsAdmin(auth.user)
+        setShowActions(isAdmin)
+    },[auth])
 
     const handleCreateQuiz = () => {
         dispatch(addQuiz({}))
@@ -72,30 +82,30 @@ const QuizList = (props) => {
                     </TabList>
                 </Box>
                 <TabPanel value="quiz">
-                    <Box>
+                    <Stack spacing={2}>
                         {(qList && qList.length > 0) ? qList.map(q => (
-                            <QuizCard key={q.id} quiz={q} showActions={true} />
+                                <QuizCard key={q.id} quiz={q} showActions={showActions} />
                         )) : (<Typography variant="h6">Записи отсутсвуют</Typography>)
                         }
-                        <Button onClick={handleCreateQuiz}>Создать</Button>
-                    </Box>
+                        {showActions && <Button onClick={handleCreateQuiz}>Создать</Button>}
+                    </Stack>
                 </TabPanel>
                 <TabPanel value="lect">
-                    <Box>
+                    <Stack spacing={2}>
                         {(lList && lList.length > 0) ? lList.map(l => (
-                            <LectureCard key={l.id} lecture={l} showActions={true}/>
+                            <LectureCard key={l.id} lecture={l} showActions={showActions}/>
                         )) : (<Typography variant="h6">Записи отсутсвуют</Typography>)}
-                        <Button onClick={handleCreateLect}>Создать</Button>
-                    </Box>
+                        {showActions && <Button onClick={handleCreateLect}>Создать</Button>}
+                    </Stack>
                 </TabPanel>
                 <TabPanel value={"video"}>
-                    <Box>
+                    <Stack spacing={2}>
                         {(vList && vList.length > 0) ? vList.map(v => (
-                            <VideoCard video={v} key={v.id} showActions={true}/>
+                            <VideoCard video={v} key={v.id} showActions={showActions}/>
                         )) : (<Typography variant="h6">Записи отсутсвуют</Typography>)
                         }
-                        <Button onClick={handleCreateVideo}>Создать</Button>
-                    </Box>
+                        {showActions && <Button onClick={handleCreateVideo}>Создать</Button>}
+                    </Stack>
                 </TabPanel>
                 {/*</Stack>*/}
             </TabContext>
