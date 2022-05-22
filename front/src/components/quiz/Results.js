@@ -52,7 +52,7 @@ const QuizResult = (props) => {
     return (
         <div className="container-fluid" key={props.id }>
             {res ? (<div>
-                <h1>Score: {res.correct}/{res.total}</h1>
+                <h1>Результат: {res.correct}/{res.total}</h1>
                 {res.result.map(r => (
                     <Card key={r.question.id}>
                         <Card.Header>
@@ -66,7 +66,7 @@ const QuizResult = (props) => {
                     </Card>
                 ))}
 
-            </div>) : (<h1>Loading...</h1>)}
+            </div>) : (<h1>Загрузка...</h1>)}
         </div>
     )
 }

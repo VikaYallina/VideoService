@@ -48,31 +48,31 @@ const VideoCard = (props) => {
                     </Box>
                 </Box>
             </CardActionArea>
-            {propValue.showActions ? (
-                <CardActions>
-                    <IconButton onClick={(e) => {
-                        history.push(`/video/edit/${propValue.video.id}`)
-                    }}><EditIcon/></IconButton>
-                    <IconButton onClick={(e) => {
-                        dispatch(removeVideo(propValue.video.id))
-                            .catch(err => console.log(err))
-                    }}><DeleteIcon/></IconButton>
-                </CardActions>
-            ) : (
-                <CardActions>
-                    <IconButton onClick={() => {
-                        const data = {
-                            id:propValue.video.id,
-                            type:"video",
-                            title: propValue.video.title,
-                            desc: propValue.video.desc
-                        }
-                        props.getChildData(data)
-                    }}>
-                        <AddIcon/>
-                    </IconButton>
-                </CardActions>
-            )}
+            { propValue.isAdmin ? (propValue.showActions ? (
+                    <CardActions>
+                        <IconButton onClick={(e) => {
+                            history.push(`/video/edit/${propValue.video.id}`)
+                        }}><EditIcon/></IconButton>
+                        <IconButton onClick={(e) => {
+                            dispatch(removeVideo(propValue.video.id))
+                                .catch(err => console.log(err))
+                        }}><DeleteIcon/></IconButton>
+                    </CardActions>
+                ) : (
+                    <CardActions>
+                        <IconButton onClick={() => {
+                            const data = {
+                                id:propValue.video.id,
+                                type:"video",
+                                title: propValue.video.title,
+                                desc: propValue.video.desc
+                            }
+                            props.getChildData(data)
+                        }}>
+                            <AddIcon/>
+                        </IconButton>
+                    </CardActions>
+                )) : null}
         </Card>
     )
 }
@@ -81,6 +81,7 @@ const VideoCard = (props) => {
 VideoCard.propTypes ={
     video: PropTypes.object.isRequired,
     showActions: PropTypes.bool.isRequired,
-    getChildData: PropTypes.func
+    getChildData: PropTypes.func,
+    isAdmin: PropTypes.bool
 }
 export default VideoCard

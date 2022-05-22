@@ -3,7 +3,7 @@ import {useDispatch, useSelector} from "react-redux";
 import {deleteAllEmployees, deleteEmployee, retrieveEmployees} from "../../actions/employee.action";
 import {Link} from "react-router-dom";
 import Quiz from "../quiz/Quiz";
-import {Box, Button, Paper} from "@mui/material";
+import {Box, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Paper} from "@mui/material";
 import {DataGrid, GridActionsCellItem} from "@mui/x-data-grid";
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
@@ -14,6 +14,10 @@ const EmployeeList = () => {
     const [currEmployee, setCurrEmployee] = useState(null);
     const [currIndex, setCurrIndex] = useState(-1);
     const [searchTerm, setSearchTerm] = useState("");
+
+
+    const [employeeDelete, setEmployeeDelete] = useState(null)
+    const [openDeleteDialog, setOpenDeleteDialog] = useState(false)
 
     const employees = useSelector(state => state.employees)
     const dispatch = useDispatch()
@@ -65,18 +69,19 @@ const EmployeeList = () => {
         return date.toLocaleDateString()
     }
 
-    const handleEdit = (props) => {
-        console.log(props)
+
+    const setGenderValue = (params) =>{
+        return (params.value === "m") ? "муж." : "жен."
     }
 
     const columns = [
         {field: 'id', headerName: 'Id'},
-        {field: 'firstname', headerName:'Name'},
-        {field: 'lastname', headerName: 'Surname'},
-        {field: 'birthdate', headerName: 'Birthdate', type:'date', valueFormatter:formatValue},
-        {field: 'gender', headerName: 'Gender'},
-        {field: 'hire_date', headerName: 'Hire date', type:'date', valueFormatter: formatValue},
-        {field: 'department', headerName: 'Department', valueGetter: setDepartmentName},
+        {field: 'firstname', headerName:'Имя'},
+        {field: 'lastname', headerName: 'Фамилия'},
+        {field: 'birthdate', headerName: 'Дата рождения', type:'date', valueFormatter:formatValue},
+        {field: 'gender', headerName: 'Пол', valueFormatter:setGenderValue},
+        {field: 'hire_date', headerName: 'Дата начала работы', type:'date', valueFormatter: formatValue},
+        {field: 'department', headerName: 'Отдел', valueGetter: setDepartmentName},
         {
             field: 'actions',
             type: 'actions',
@@ -90,7 +95,9 @@ const EmployeeList = () => {
                     })
                 }} icon={<EditIcon />} label="Edit" />,
                 <GridActionsCellItem onClick={() => {
-                    dispatch(deleteEmployee(props.row.id))
+                    // dispatch(deleteEmployee(props.row.id))
+                    setEmployeeDelete(props.row)
+                    setOpenDeleteDialog(true)
                 }}
                     icon={<DeleteIcon />} label="Delete" />,
             ],
@@ -119,6 +126,12 @@ const EmployeeList = () => {
         })
     }
 
+    const handleDelete = (confirm, employee) => {
+        if (confirm){
+            dispatch(deleteEmployee(employee.id))
+        }
+    }
+
     return (
         <Box>
             <Paper elevation={3}>
@@ -142,6 +155,7 @@ const EmployeeList = () => {
                 isNewEntry={dialogData.isNewEntry}
                 employee={dialogData.employee}
             />
+            <ConfirmationDialog open={openDeleteDialog} handleDialog={handleDelete} employeeData={employeeDelete}/>
         </Box>
         // <div className="list row">
         //     <div className="col-md-8">
@@ -234,5 +248,29 @@ const EmployeeList = () => {
     )
 
 }
+
+const ConfirmationDialog = (props) => {
+    const {open, handleDialog} = props
+
+    const [employeeData, setEmployeeData] = useState(props.employeeData)
+
+    useEffect(() => {
+        props.employeeData && setEmployeeData(props.employeeData)
+    }, [props])
+
+    return(
+        <Dialog open={open} onClose={() => handleDialog(false, employeeData)}>
+            <DialogTitle>Подтвердите действие</DialogTitle>
+            <DialogContent>
+                <DialogContentText>{`Данные сотрудника ${employeeData ? employeeData.lastname + " " + employeeData.firstname : "--" } будут безвозвратно удалены. Продолжить?`}</DialogContentText>
+            </DialogContent>
+            <DialogActions>
+                <Button onClick={() => handleDialog(false, employeeData)}>Отмена</Button>
+                <Button onClick={() => handleDialog(true, employeeData)}>Удалить</Button>
+            </DialogActions>
+        </Dialog>
+    )
+}
+
 
 export default EmployeeList

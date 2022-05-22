@@ -15,6 +15,7 @@ module.exports = function(app) {
     router.get("/",[authJwt.verifyToken],course.findAll);
     router.get("/:id",[authJwt.verifyToken], course.findById)
     router.put("/:id",[authJwt.verifyToken],course.update)
+    router.delete("/:id", [authJwt.verifyToken], course.delete)
 
     app.use("/api/course", router)
 }

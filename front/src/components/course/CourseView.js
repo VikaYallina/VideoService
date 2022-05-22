@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from "react";
-import {Box, Button, Pagination, Typography} from "@mui/material";
+import {Box, Button, Pagination, Tooltip, Typography} from "@mui/material";
 import httpCommon from "../../http-common";
 import Lecture from "../lecture/Lecture";
 import VideoView from "../video/VideoView";
@@ -149,25 +149,27 @@ const CourseView = (props) => {
                     console.log(currentResultId[id])
                     return (<Box>
                         <Results id={currentResultId[id]}/>
-                        <Button
-                            disabled={!hasMoreTries(id) || courseProgression.completed[stepIndex]}
-                            onClick={(e) => {
-                                const q = showQuiz ? showQuiz.find(val => val.id === id) : null
-                                if (q) {
-                                    setShowQuiz(state =>
-                                        state.map(val => {
-                                            if (val.id === id)
-                                                return {...val, show: true}
-                                            else return val
-                                        })
-                                    )
-                                } else {
-                                    setShowQuiz(state => [...state, {
-                                        id: id,
-                                        show: true
-                                    }])
-                                }
-                            }}>{(hasMoreTries(id) && !courseProgression.completed[stepIndex]) ? "Again" : "no more"}</Button>
+                        <Tooltip title={`Осталось ${getTriesLeft(id)} попыток`}>
+                            <Button
+                                disabled={!hasMoreTries(id) || courseProgression.completed[stepIndex]}
+                                onClick={(e) => {
+                                    const q = showQuiz ? showQuiz.find(val => val.id === id) : null
+                                    if (q) {
+                                        setShowQuiz(state =>
+                                            state.map(val => {
+                                                if (val.id === id)
+                                                    return {...val, show: true}
+                                                else return val
+                                            })
+                                        )
+                                    } else {
+                                        setShowQuiz(state => [...state, {
+                                            id: id,
+                                            show: true
+                                        }])
+                                    }
+                                }}>{(hasMoreTries(id) && !courseProgression.completed[stepIndex]) ? "Попробовать снова" : "Больше попыток нет"}</Button>
+                        </Tooltip>
                     </Box>)
                 }
                 return (<Quiz id={id} showQuiz={handleChildComp}/>)
@@ -226,6 +228,11 @@ const CourseView = (props) => {
         }
     }
 
+    const getTriesLeft = (id) => {
+        const quiz = courseProgression.quiz.find(val => val.id === id)
+        return (quiz ? (quiz.totalTriesNo - quiz.results.length) : 0)
+    }
+
     const hasMoreTries = (id) => {
         const quiz = courseProgression.quiz.find(val => val.id === id)
         return (quiz && (quiz.results.length < quiz.totalTriesNo))
@@ -245,10 +252,10 @@ const CourseView = (props) => {
                 />
                 <Box>
                     {courseProgression.courseData.steps[stepIndex] ? renderData()
-                        : (<Typography>No data</Typography>)}
-                    <Button onClick={handleStepChange}>Next step</Button>
+                        : (<Typography>Данные отсутствуют</Typography>)}
+                    <Button onClick={handleStepChange}>Следующий этап</Button>
                 </Box>
-            </Box>) : (<Typography>No data </Typography>)}
+            </Box>) : (<Typography>Нет данных</Typography>)}
         </div>)
 }
 

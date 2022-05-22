@@ -52,8 +52,8 @@ module.exports = function(app) {
     router.post("/:id",[authJwt.verifyToken],video.update)
     router.post("/",[authJwt.verifyToken], video.create)
     router.get("/:id/data",[authJwt.verifyToken],video.getData)
-    router.get("/:id",[authJwt.verifyToken],video.getVideo)
-    router.get("/:id/thumb",[authJwt.verifyToken], video.getThumbnail)
+    router.get("/:id",video.getVideo)
+    router.get("/:id/thumb",video.getThumbnail)
     router.delete("/:id",[authJwt.verifyToken],video.delete)
 
 

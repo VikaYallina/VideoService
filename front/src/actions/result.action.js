@@ -20,7 +20,7 @@ export const addResult = (result) => async (dispatch) =>{
             return Promise.resolve(res.data)
         })
         .catch(err => {
-            console.log(err)
+            console.log(err.response.data.message)
             return Promise.reject(err.message)
         })
 }

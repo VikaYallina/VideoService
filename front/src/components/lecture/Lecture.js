@@ -4,6 +4,12 @@ import draftToHtml from 'draftjs-to-html';
 import {connect} from "react-redux";
 import parse from 'html-react-parser'
 import LectureService from "../../services/lecture.service";
+import createDOMPurify from 'dompurify'
+
+// import { JSDOM } from 'jsdom'
+//
+// const window = (new JSDOM('')).window
+// const DOMPurify = createDOMPurify(window)
 
 const Lecture = (props) => {
     const [lecture, setLecture] = useState({title:"1",l_data:{}})
@@ -41,7 +47,8 @@ const Lecture = (props) => {
                         <Divider></Divider>
                         <Box sx ={{ marginTop:2}}>
                             {lecture.l_data ?
-                                parse(draftToHtml(lecture.l_data))
+                                (<div dangerouslySetInnerHTML={{ __html: draftToHtml(lecture.l_data) }}/>)
+                                // parse()
                                 : (<Typography>Данные отсутствуют</Typography>)}
                         </Box>
                     </Box>

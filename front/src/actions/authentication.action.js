@@ -22,7 +22,7 @@ export const loginAction = (email, password) => async (dispatch) => {
             }
         )
         .catch(error => {
-            console.log(error)
+            console.log(error.message)
             dispatch({
                 type: userConstants.LOGIN_FAILURE,
                 error

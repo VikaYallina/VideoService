@@ -44,7 +44,7 @@ const EditQuiz = (props) => {
                 props.history.push("/kb")
             }
         }
-        (q && q.title) && setQuizTitle(q.title)
+        (q && q.title) && setQuizTitle(q.title);
         (q && q.desc) && setDescription(q.desc)
 
         if (q && q.points_borderline) {
@@ -248,7 +248,7 @@ const EditQuiz = (props) => {
                 <TextField
                     size="small"
                     fullWidth
-                    label="disable when checkbox checked"
+                    label="Вариант ответа"
                     value={questionList[index].options[i].option || ''}
                     onChange={(e) => {
                         setQuestionList(list => {
@@ -283,7 +283,7 @@ const EditQuiz = (props) => {
             divider={<Divider orientation="horizontal" flexItem/>}
             component={Paper}
         >
-            <Stack direction="row" spacing={2} justifyContent="space-around">
+            <Stack direction="row" spacing={2} >
                 <TextField
                     required
                     id="quizTitle"

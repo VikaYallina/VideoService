@@ -31,7 +31,7 @@ const LectureCard = (props) => {
                     <Typography variant={"subtitle1"}>{propValue.lecture.desc ? propValue.lecture.desc : "Описание отсутсвует"}</Typography>
                 </CardContent>
             </CardActionArea>
-            {propValue.showActions ? (
+            {propValue.isAdmin ? (propValue.showActions ? (
                 <CardActions>
                     <IconButton onClick={(e) => {
                         history.push(`/lect/edit/${propValue.lecture.id}`)
@@ -54,7 +54,7 @@ const LectureCard = (props) => {
                         <AddIcon/>
                     </IconButton>
                 </CardActions>
-            )}
+            )) : null}
         </Card>
     )
 }
@@ -62,7 +62,8 @@ const LectureCard = (props) => {
 LectureCard.propTypes ={
     lecture: PropTypes.object.isRequired,
     showActions: PropTypes.bool.isRequired,
-    getChildData: PropTypes.func
+    getChildData: PropTypes.func,
+    isAdmin: PropTypes.bool
 }
 
 export default LectureCard

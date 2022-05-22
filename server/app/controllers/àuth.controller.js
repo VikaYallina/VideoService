@@ -155,3 +155,30 @@ exports.signin = (req, res) =>{
         res.status(500).send({message: err.message})
     })
 }
+
+exports.changePassword = async (req, res) => {
+    const id = req.params.id
+
+    let user = await User.findByPk(id)
+
+    if (!user){
+        return res.status(404).send({message: "User not found"})
+    }
+
+    var passwordIsValid = bcrypt.compareSync(
+        req.body.old_password,
+        user.password
+    )
+
+    if (!passwordIsValid){
+        return res.status(401).send({
+            message: "Invalid credentials"
+        })
+    }
+
+    let new_password = bcrypt.hashSync(req.body.new_password)
+    user.update({password: new_password})
+        .then(() => res.send({message: "New password has been set"}))
+        .catch(err => res.status(500).send({message: err.message}))
+
+}

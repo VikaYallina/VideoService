@@ -1,5 +1,6 @@
 const db = require('../models')
 const Course = db.course_data
+const CourseProg = db.course_progress
 
 exports.create = (req, res) => {
     Course.create(req.body)
@@ -38,4 +39,26 @@ exports.findById = (req, res) => {
     Course.findByPk(id)
         .then(data => res.send(data))
         .catch(err => res.status(500).send({message: err}))
+}
+
+exports.delete = async (req, res) => {
+    const id = req.params.id
+
+    try {
+        await CourseProg.destroy({where:{courseDatumId: id}})
+    }
+    catch (err){
+        return res.status(500).send({message: err || "Server error occurred"})
+    }
+    Course.destroy({where: {id: id}})
+        .then(data => {
+            if (data === 1){
+                res.send({ message: "Course deleted successfully"})
+            }else {
+                res.send({ message: `Could not delete Course with id=${id}`})
+            }
+        })
+        .catch(err => {
+            res.status(500).send({message: err || "Server error occurred"})
+        })
 }

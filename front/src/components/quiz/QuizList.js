@@ -6,6 +6,7 @@ import RemoveIcon from '@mui/icons-material/Remove';
 import DeleteIcon from '@mui/icons-material/Delete';
 import {addQuiz, removeQuiz, retrieveAllQuiz} from "../../actions/quiz.action";
 import {
+    Autocomplete,
     Box,
     Button,
     Card,
@@ -14,7 +15,7 @@ import {
     CardContent,
     CardHeader, CardMedia, Grid,
     IconButton,
-    Stack, Tab, Tabs,
+    Stack, Tab, Tabs, TextField,
     Typography
 } from "@mui/material";
 import {addLecture, removeLecture, retrieveAllLecture} from "../../actions/lecture.action";
@@ -71,40 +72,114 @@ const QuizList = (props) => {
             .catch(err => console.log(err))
     }
 
+
+
+    const [quizAutoValue, setQuizAutoValue] = useState(null)
+    const [quizAutoInput, setQuizAutoInput] = useState("")
+
+    const [lectureAutoValue, setLectureAutoValue] = useState(null)
+    const [lectureAutoInput, setLectureAutoInput] = useState("")
+
+    const [videoAutoValue, setVideoAutoValue] = useState(null)
+    const [videoAutoInput, setVideoAutoInput] = useState("")
+
+    useEffect(() => {console.log(quizAutoValue)}, [quizAutoValue])
+
     return (
         <Box >
             <TabContext value={tabVal}>
                 <Box sx={{borderBottom: 1, borderColor: 'divider'}}>
                     <TabList variant={"fullWidth"} centered onChange={handleTabChange}>
-                        <Tab value="quiz" label={"Quiz"}/>
-                        <Tab value="lect" label={"Lecture"}/>
-                        <Tab value="video" label={"Video"}/>
+                        <Tab value="quiz" label={"Тесты"}/>
+                        <Tab value="lect" label={"Лекции"}/>
+                        <Tab value="video" label={"Видео"}/>
                     </TabList>
                 </Box>
                 <TabPanel value="quiz">
                     <Stack spacing={2}>
-                        {(qList && qList.length > 0) ? qList.map(q => (
-                                <QuizCard key={q.id} quiz={q} showActions={showActions} />
+
+                        {qList && qList.length !== 0 ? (<Autocomplete
+                            fullWidth
+                            value={quizAutoValue}
+                            onChange={(e, newVal) => {
+                                setQuizAutoValue(newVal)
+                            }}
+                            inputValue={quizAutoInput}
+                            onInputChange={(e, newVal) => {
+                                setQuizAutoInput(newVal)
+                            }}
+                            disablePortal
+                            id="combo-box-demo"
+                            options={qList}
+                            getOptionLabel={(option) => option.title}
+                            blurOnSelect
+                            sx={{ width: 300 }}
+                            renderInput={(params) => <TextField {...params} label="Поиск теста" />}
+                        />) : null}
+                        {showActions && <Button variant={"contained"} onClick={handleCreateQuiz}>Создать</Button>}
+                        {qList && qList.length !== 0 && quizAutoValue ? (<QuizCard isAdmin={showActions} quiz={quizAutoValue} showActions={showActions}/>) :
+                            (qList && qList.length > 0) ? qList.map(q => (
+                            <QuizCard isAdmin={showActions} key={q.id} quiz={q} showActions={showActions} />
                         )) : (<Typography variant="h6">Записи отсутсвуют</Typography>)
                         }
-                        {showActions && <Button onClick={handleCreateQuiz}>Создать</Button>}
                     </Stack>
                 </TabPanel>
                 <TabPanel value="lect">
                     <Stack spacing={2}>
-                        {(lList && lList.length > 0) ? lList.map(l => (
-                            <LectureCard key={l.id} lecture={l} showActions={showActions}/>
+
+                        {lList && lList.length >0 ? (<Autocomplete
+                            fullWidth
+                            value={lectureAutoValue}
+                            onChange={(e, newVal) => {
+                                setLectureAutoValue(newVal)
+                            }}
+                            inputValue={lectureAutoInput}
+                            onInputChange={(e, newVal) => {
+                                setLectureAutoInput(newVal)
+                            }}
+                            disablePortal
+                            id="combo-box-demo"
+                            options={lList}
+                            getOptionLabel={(option) => option.title}
+                            blurOnSelect
+                            sx={{ width: 300 }}
+                            renderInput={(params) => <TextField {...params} label="Поиск лекции" />}
+                        />) : null}
+                        {showActions && <Button variant={"contained"} onClick={handleCreateLect}>Создать</Button>}
+                        {lList && lList.length>0 && lectureAutoValue ? (<LectureCard isAdmin={showActions} lecture={lectureAutoValue} showActions={showActions} />) :
+                            (lList && lList.length > 0) ? lList.map(l => (
+                            <LectureCard isAdmin={showActions} key={l.id} lecture={l} showActions={showActions}/>
                         )) : (<Typography variant="h6">Записи отсутсвуют</Typography>)}
-                        {showActions && <Button onClick={handleCreateLect}>Создать</Button>}
+
                     </Stack>
                 </TabPanel>
                 <TabPanel value={"video"}>
                     <Stack spacing={2}>
-                        {(vList && vList.length > 0) ? vList.map(v => (
-                            <VideoCard video={v} key={v.id} showActions={showActions}/>
-                        )) : (<Typography variant="h6">Записи отсутсвуют</Typography>)
+                        {vList && vList.length>0 ? (<Autocomplete
+                            fullWidth
+                            value={videoAutoValue}
+                            onChange={(e, newVal) => {
+                                setVideoAutoValue(newVal)
+                            }}
+                            inputValue={videoAutoInput}
+                            onInputChange={(e, newVal) => {
+                                setVideoAutoInput(newVal)
+                            }}
+                            disablePortal
+                            id="combo-box-demo"
+                            options={vList}
+                            getOptionLabel={(option) => option.title}
+                            blurOnSelect
+                            sx={{ width: 300 }}
+                            renderInput={(params) => <TextField {...params} label="Поиск видео" />}
+                        />) : null}
+                        {showActions && <Button variant={"contained"} onClick={handleCreateVideo}>Создать</Button>}
+                        {vList && vList.length>0 && videoAutoValue ? (<VideoCard isAdmin={showActions} video={videoAutoValue} showActions={showActions}/>) :
+                            (vList && vList.length > 0) ? vList.map(v => (
+                                <VideoCard isAdmin={showActions} video={v} key={v.id} showActions={showActions}/>
+                            )) : (<Typography variant="h6">Записи отсутсвуют</Typography>)
                         }
-                        {showActions && <Button onClick={handleCreateVideo}>Создать</Button>}
+
                     </Stack>
                 </TabPanel>
                 {/*</Stack>*/}

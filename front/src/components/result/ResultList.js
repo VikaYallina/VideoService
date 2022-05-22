@@ -123,7 +123,7 @@ const ResultList = (props) => {
                         </Collapse>
                     </Card>
                 </ListItem>
-            )) : (<Typography>Данные отсутствуют</Typography>)}
+            )) : (<ListItem><Typography>Данные отсутствуют</Typography></ListItem>)}
         </Box>)
     }
 
@@ -196,6 +196,7 @@ const ResultList = (props) => {
                         />
                         <Button
                             variant={"contained"}
+                            variant={"contained"}
                             fullWidth
                             onClick={() => {
                             setOpenCourseDialog(state => {
@@ -237,10 +238,10 @@ const ResultList = (props) => {
         })
         console.log(res)
 
-        // if (res && res.length!==0){
-        //     httpCommon.post(`/api/courseprog`,res)
-        //         .catch(err => console.log(err))
-        // }
+        if (res && res.length!==0){
+            httpCommon.post(`/api/courseprog`,res)
+                .catch(err => console.log(err))
+        }
     }
 
 
@@ -282,28 +283,30 @@ const ResultList = (props) => {
                 )}
             />
         </Box>
-        <Box marginTop={2}>
-            {
-                (departments && departments.length!==0) ?
-                    departments.map(val => (
-                        <div key={val.id}>
-                            <List
-                                component={Card}
-                                sx={{ width: '100%',  bgcolor: 'background.paper' }}
-                                subheader={
-                                <ListSubheader component="div" id="nested-list-subheader">
-                                    {val.name}
-                                </ListSubheader>}>
-                                {renderCards(val.id)}
-                            </List>
-                            {/*<Typography>{val.name}</Typography>*/}
-                            <Divider orientation="horizontal"/>
+        <Box marginTop={2} >
+            <Stack spacing={2}>
+                {
+                    (departments && departments.length!==0) ?
+                        departments.map(val => (
+                            <div key={val.id}>
+                                <List
+                                    component={Card}
+                                    sx={{ width: '100%',  bgcolor: 'background.paper' }}
+                                    subheader={
+                                        <ListSubheader component="div" id="nested-list-subheader">
+                                            {val.name}
+                                        </ListSubheader>}>
+                                    {renderCards(val.id)}
+                                </List>
+                                {/*<Typography>{val.name}</Typography>*/}
+                                <Divider orientation="horizontal"/>
 
-                        </div>
-                    ))
-                    :
-                    (<Typography>Отделы отсутсвуют</Typography>)
-            }
+                            </div>
+                        ))
+                        :
+                        (<Typography>Отделы отсутсвуют</Typography>)
+                }
+            </Stack>
         </Box>
     </Box>)
 }
@@ -334,7 +337,7 @@ const DialogComponent = (props) => {
             maxWidth={"md"}
             fullWidth={false}
         >
-            <DialogTitle id="scroll-dialog-title">Course Progression</DialogTitle>
+            <DialogTitle id="scroll-dialog-title">Прогресс по курсу</DialogTitle>
             <Divider />
             <DialogContent>
                 <Divider variant="middle" >
@@ -358,15 +361,15 @@ const DialogComponent = (props) => {
                                             (<ClearIcon sx={{color:"#9c2626"}}/>)}
                                     </ListItemIcon>
                                     <ListItemText
-                                        primary={`Step: ${val.stepIndex+1} - Result: ${val.bestResult ? val.bestResult : "No data"}`}
-                                        secondary={`tries: ${val.totalTriesNo ? val.totalTriesNo : "-"}`}
+                                        primary={`Этап: ${val.stepIndex+1} ${result.courseData.steps[val.stepIndex].title}- Результат: ${val.bestResult ? val.bestResult : 0}`}
+                                        secondary={`Кол-во попыток: ${val.totalTriesNo ? val.totalTriesNo : "-"}`}
                                     />
                                 </ListItemButton>
                             </ListItem>
                         ))
                         :
                         (<ListItem>
-                            <ListItemText primary={"No data"}/>
+                            <ListItemText primary={"Данные отсутствуют"}/>
                         </ListItem>)
                     }
                 </List>
@@ -391,14 +394,14 @@ const DialogComponent = (props) => {
                                             (<ClearIcon sx={{color:"#9c2626"}}/>)}
                                     </ListItemIcon>
                                     <ListItemText
-                                        primary={`Step: ${val.stepIndex+1} - ${val.completed ? "COMPLETED" : "NOT COMPLETED"}`}
+                                        primary={`Этап: ${val.stepIndex+1} ${result.courseData.steps[val.stepIndex].title} - ${val.completed ? "ЗАВЕРШЕНО" : "НЕ ЗАВЕРШЕНО"}`}
                                     />
                                 </ListItemButton>
                             </ListItem>
                         ))
                         :
                         (<ListItem>
-                            <ListItemText primary={"No data"}/>
+                            <ListItemText primary={"Данные отсутствуют"}/>
                         </ListItem>)
                     }
                 </List>
@@ -423,14 +426,14 @@ const DialogComponent = (props) => {
                                             (<ClearIcon sx={{color:"#9c2626"}}/>)}
                                     </ListItemIcon>
                                     <ListItemText
-                                        primary={`Step: ${val.stepIndex+1} - ${val.completed ? "COMPLETED" : "NOT COMPLETED"}`}
+                                        primary={`Этап: ${val.stepIndex+1} ${result.courseData.steps[val.stepIndex].title} - ${val.completed ? "ЗАВЕРШЕНО" : "НЕ ЗАВЕРШЕНО"}`}
                                     />
                                 </ListItemButton>
                             </ListItem>
                         ))
                         :
                         (<ListItem>
-                            <ListItemText primary={"No data"}/>
+                            <ListItemText primary={"Данные отсутствуют"}/>
                         </ListItem>)
                     }
                 </List>

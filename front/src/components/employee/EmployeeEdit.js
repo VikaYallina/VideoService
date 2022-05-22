@@ -150,7 +150,7 @@ const EmployeeEdit = (props) => {
                         <TextField
                             id="roles"
                             select
-                            label="role"
+                            label="роль"
                             value={employeeData.roles || Role.Empl}
                             onChange={(event) => {
 
@@ -160,7 +160,6 @@ const EmployeeEdit = (props) => {
                                     return copy
                                 })
                             }}
-                            helperText="Please select your currency"
                         >
                             <MenuItem key={Role.Empl} value={Role.Empl}>
                                 {Role.Empl}
@@ -174,19 +173,19 @@ const EmployeeEdit = (props) => {
                         </TextField>
                     </Box>)}
                     <TextField
-                        label={"firstname"}
+                        label={"Имя"}
                         name={"firstname"}
                         value={employeeData.firstname || ""}
                         onChange={handleChange}
                     />
                     <TextField
-                        label={"lastname"}
+                        label={"Фамилия"}
                         name={"lastname"}
                         value={employeeData.lastname || ""}
                         onChange={handleChange}
                     />
                     <TextField
-                        label={"middlename"}
+                        label={"Отчество"}
                         name={"middlename"}
                         value={employeeData.middlename || ""}
                         onChange={handleChange}
@@ -194,7 +193,7 @@ const EmployeeEdit = (props) => {
                     <LocalizationProvider dateAdapter={AdapterDateFns} locale={ruLocale}>
                         <DesktopDatePicker
                             mask={"__.__.____"}
-                            label="Birthdate"
+                            label="Дата рождения"
                             value={employeeData.birthdate || new Date()}
                             minDate={new Date("01.01.1900")}
                             onChange={(newValue) => {
@@ -209,7 +208,7 @@ const EmployeeEdit = (props) => {
                         <TextField
                             id="gender"
                             select
-                            label="gender"
+                            label="Пол"
                             value={employeeData.gender || "m"}
                             onChange={(event) => {
                                 setEmployeeData(state => {
@@ -221,15 +220,15 @@ const EmployeeEdit = (props) => {
                             helperText="Please select your currency"
                         >
                             <MenuItem key={"m"} value={"m"}>
-                                Male
+                                Мужчина
                             </MenuItem>
                             <MenuItem key={"f"} value={"f"}>
-                                Female
+                                Женщина
                             </MenuItem>
                         </TextField>
                         <DesktopDatePicker
                             mask={"__.__.____"}
-                            label="Hire date"
+                            label="Дата начала работы"
                             value={employeeData.hire_date || new Date()}
                             minDate={new Date("01.01.1900")}
                             onChange={(newValue) => {
@@ -245,7 +244,7 @@ const EmployeeEdit = (props) => {
                     <TextField
                         id="department"
                         select
-                        label="Department"
+                        label="Отдел"
                         value={employeeData.depId || ""}
                         onChange={(e, newValue) => {
                             console.log(newValue)
@@ -255,7 +254,6 @@ const EmployeeEdit = (props) => {
                                 return copy
                             })
                         }}
-                        helperText="Please select your currency"
                     >
                         {departments.map((option) => (
                             <MenuItem key={option.id} value={option.id}>

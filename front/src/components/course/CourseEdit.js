@@ -130,6 +130,7 @@ const CourseEdit = (props) => {
                 return newData
             })
         }
+        console.log(course)
         httpCommon.put(`/api/course/${lastCourseData.id}`, course)
             .then(res => {
                 props.history.push("/course")
@@ -385,21 +386,21 @@ const DndList = (props) => {
                         <TabPanel value="quiz">
                             <Stack direction={"column"} spacing={2}>
                                 {(quizList && quizList.length > 0) ? quizList.map(q => (
-                                        <QuizCard key={q.id} quiz={q} showActions={false} getChildData={getChildData}/>))
+                                        <QuizCard isAdmin={true} key={q.id} quiz={q} showActions={false} getChildData={getChildData}/>))
                                     :(<Typography variant={"subtitle1"}>Данные отсутствуют</Typography>)}
                             </Stack>
                         </TabPanel>
                         <TabPanel value="lecture">
                             <Stack direction={"column"} spacing={2}>
                                 {(lectureList && lectureList.length > 0) ? lectureList.map(l => (
-                                        <LectureCard key={l.id} lecture={l} showActions={false} getChildData={getChildData} />))
+                                        <LectureCard isAdmin={true} key={l.id} lecture={l} showActions={false} getChildData={getChildData} />))
                                     :(<Typography variant={"subtitle1"}>Данные отсутствуют</Typography>)}
                             </Stack>
                         </TabPanel>
                         <TabPanel value="video">
                             <Stack direction={"column"} spacing={2}>
                                 {(videoList && videoList.length > 0) ? videoList.map(v => (
-                                        <VideoCard key={v.id} video={v} showActions={false} getChildData={getChildData}/>))
+                                        <VideoCard isAdmin={true} key={v.id} video={v} showActions={false} getChildData={getChildData}/>))
                                     :(<Typography variant={"subtitle1"}>Данные отсутствуют</Typography>)}
                             </Stack>
                         </TabPanel>
@@ -454,11 +455,13 @@ const DndList = (props) => {
                                                                                     name={"totalTries"}
                                                                                     onChange={(event) => {
                                                                                         const newVal = event.target.value
+                                                                                        let copy = {}
                                                                                         setData(state => {
-                                                                                            let copy = [...state]
+                                                                                            copy = [...state]
                                                                                             copy[index].totalTries = newVal
                                                                                             return copy
                                                                                         })
+                                                                                        props.saveCourseSteps(copy)
                                                                                     }}
                                                                                 >
                                                                                     <MenuItem value={1}>1</MenuItem>

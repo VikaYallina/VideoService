@@ -1,5 +1,6 @@
 import httpCommon from "../http-common";
 import {handleResponse} from "../helpers/handle-response";
+import {authHeader} from "../helpers/auth-header";
 
 const baseUrl = "/api/employee"
 const getAll = () => {

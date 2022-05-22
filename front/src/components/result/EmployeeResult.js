@@ -83,7 +83,7 @@ const EmployeeResult = (props) => {
                     />
                     <CardContent>
                         <Divider>
-                            <Typography variant={"h5"}>Quiz</Typography>
+                            <Typography variant={"h5"}>Тесты</Typography>
                         </Divider>
                         {(val.quiz && val.quiz.length !== 0) ?
                             (<List>
@@ -99,7 +99,7 @@ const EmployeeResult = (props) => {
                                         />
                                         <List>
                                             {(quiz.results && quiz.results.length !== 0) ?
-                                                quiz.results.map(res => (
+                                                quiz.results.map((res, i) => (
                                                     <ListItem key={res.id}>
                                                         <ListItemButton onClick={() => {
                                                             setOpenDialog(state => {
@@ -108,22 +108,22 @@ const EmployeeResult = (props) => {
                                                                 return copy
                                                             })
                                                         }}>
-                                                            <ListItemText primary={"RESULT"}/>
+                                                            <ListItemText primary={"Результат "+(i+1)}/>
                                                         </ListItemButton>
                                                         <ResultDialog open={openDialog[res.id]} handleClose={handleClose} resultId={res.id}/>
                                                     </ListItem>
                                                 )) :
-                                                (<Typography>No data</Typography>)
+                                                (<Typography>Данные отсутствуют</Typography>)
                                             }
                                         </List>
                                     </ListItem>
 
                                 ))}
                             </List>) :
-                            (<Typography>No data</Typography>)
+                            (<Typography>Данные отсутствуют</Typography>)
                         }
                         <Divider>
-                            <Typography variant={"h5"}>Lecture</Typography>
+                            <Typography variant={"h5"}>Лекции</Typography>
                         </Divider>
                         {(val.lecture && val.lecture.length !== 0) ?
                             (<List>
@@ -141,9 +141,9 @@ const EmployeeResult = (props) => {
                                         </ListItem>
                                     ))}
                             </List>) :
-                            (<Typography>No data</Typography>)}
+                            (<Typography>Данные отсутствуют</Typography>)}
                         <Divider>
-                            <Typography variant={"h5"}>Video</Typography>
+                            <Typography variant={"h5"}>Видео</Typography>
                         </Divider>
                         {(val.video && val.video.length !== 0) ?
                             (<List>
@@ -161,11 +161,11 @@ const EmployeeResult = (props) => {
                                     </ListItem>
                                 ))}
                             </List>) :
-                            (<Typography>No data</Typography>)}
+                            (<Typography>Данные отсутствуют</Typography>)}
                     </CardContent>
                 </Card>
             )) :
-            (<Typography variant={"h5"}>No data</Typography>))
+            (<Typography variant={"h5"}>Данные отсутствуют</Typography>))
     }
 
 
@@ -185,12 +185,12 @@ const ResultDialog = (props) => {
                 maxWidth={"sx"}
                 fullWidth={true}
         >
-            <DialogTitle>Why {resultId}</DialogTitle>
+            <DialogTitle>Результат</DialogTitle>
             <DialogContent>
                 <Results id={resultId}/>
             </DialogContent>
             <DialogActions>
-                <Button onClick={() => handleClose(resultId)}>Close</Button>
+                <Button onClick={() => handleClose(resultId)}>Закрыть</Button>
             </DialogActions>
 
         </Dialog>

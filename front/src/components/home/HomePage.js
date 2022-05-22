@@ -144,7 +144,6 @@ const HomePage = (props) => {
             <Typography variant={"h3"}>Добро пожаловать</Typography>
 
             {userIsEmployee(user) && (<Box>
-                <Typography>Im employee</Typography>
                 <Grid container spacing={{xs: 2, md: 3}} columns={{xs: 4, sm: 8, md: 12}}>
                     {courseList ? courseList.map((val, index) => (
                             <Grid item xs={2} sm={4} md={4} key={index}>
@@ -192,7 +191,6 @@ const HomePage = (props) => {
             </Box>)}
 
             {userIsBoss(user) && (<Box>
-                <Typography>Im boss</Typography>
                 <Grid container justifyContent={"center"} spacing={2}>
                     {bossData.map((value, index) => (
                         <Grid key={index} item xs={"auto"}>
@@ -211,7 +209,7 @@ const HomePage = (props) => {
                                         component="img"
                                         alt="green iguana"
                                         height="200"
-                                        image={value.img}
+                                        image={process.env.PUBLIC_URL + value.img}
                                     />
                                     <CardContent>
                                         <Typography gutterBottom variant="h5" component="div">
@@ -229,7 +227,6 @@ const HomePage = (props) => {
             </Box>)}
 
             {userIsAdmin(user) && (<Box>
-                <Typography>Im admin</Typography>
                 <Grid container justifyContent={"center"} spacing={3} alignItems="stretch">
                     {adminData.map((value, index) => (
                         <Grid key={index} item xs={"auto"}>
@@ -248,7 +245,7 @@ const HomePage = (props) => {
                                         component="img"
                                         alt="green iguana"
                                         height="200"
-                                        image={value.img}
+                                        image={ process.env.PUBLIC_URL + value.img}
                                     />
                                     <CardContent>
                                         <Typography gutterBottom variant="h5" component="div">
@@ -357,11 +354,11 @@ const RatingDialog = (props) => {
             open={open || false}
             onClose={handleCloseCancel}
         >
-            <DialogTitle>Subscribe</DialogTitle>
+            <DialogTitle>Оставьте отзыв</DialogTitle>
             <DialogContent>
                 <DialogContentText>
-                    To subscribe to this website, please enter your email address here. We
-                    will send updates occasionally.
+                    Пожалуйста опишите ваше мнение о данном курсе. Оно поможет нам в будущем лучше
+                    понимать какие курсы нужны.
                 </DialogContentText>
                 <Rating
                     name="rating"
@@ -384,8 +381,8 @@ const RatingDialog = (props) => {
                 />
             </DialogContent>
             <DialogActions>
-                <Button onClick={handleCloseCancel}>Cancel</Button>
-                <Button onClick={handleCloseSuccess}>Subscribe</Button>
+                <Button onClick={handleCloseCancel}>Отмена</Button>
+                <Button onClick={handleCloseSuccess}>Отправить</Button>
             </DialogActions>
         </Dialog>
     )

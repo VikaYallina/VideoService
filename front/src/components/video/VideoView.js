@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from "react";
 import {VideoService} from "../../services/video.service";
-import {Paper, Typography} from "@mui/material";
+import {Box, Paper, Typography} from "@mui/material";
 
 const VideoView = (props) => {
     const [videoData, setVideoData] = useState({title:"Без названия", desc: "Описание отсутсвует"})
@@ -29,12 +29,12 @@ const VideoView = (props) => {
 
     return(
         <div>
-            <Paper elevation={3}>
-                <Typography variant={"h3"}>{videoData.title}</Typography>
+            <Box component={Paper} padding={2}>
+                <Typography marginBottom={2} variant={"h3"}>{videoData.title}</Typography>
                 {videoData.id ? (<video id="videoPlayer" width="650" controls muted="muted" autoPlay>
                     <source src={`http://localhost:8080/api/video/${videoData.id}`} type="video/mp4"/>
                 </video>) : <Typography>LOADING</Typography>}
-            </Paper>
+            </Box>
         </div>
     )
 }

@@ -1,5 +1,6 @@
 import React, {useEffect, useState} from "react";
 import {
+    Alert,
     AppBar,
     Avatar,
     Box,
@@ -8,14 +9,16 @@ import {
     IconButton,
     Menu, MenuItem, Stack,
     Tab,
-    Tabs,
+    Tabs, TextField,
     Toolbar,
     Tooltip,
     Typography
 } from "@mui/material";
 import {Link} from 'react-router-dom'
+import LockIcon from '@mui/icons-material/Lock';
 import MenuIcon from '@mui/icons-material/Menu';
 import HelpIcon from '@mui/icons-material/Help';
+import LockResetIcon from '@mui/icons-material/LockReset';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import PropTypes from "prop-types";
 import {history} from "../../helpers/history";
@@ -24,6 +27,8 @@ import ListItemIcon from "@mui/material/ListItemIcon";
 import {Logout, PersonAdd, Settings} from "@mui/icons-material";
 import {logoutAction} from "../../actions/authentication.action";
 import EmployeeService from "../../services/employee.service";
+import {authHeader} from "../../helpers/auth-header";
+import {authenticationService} from "../../services/auth.service";
 
 const lightColor = 'rgba(255, 255, 255, 0.7)';
 
@@ -41,6 +46,7 @@ function Header(props) {
     const {onDrawerToggle, user} = props;
     const [employeeData, setEmployeeData] = useState(null)
     const [openDialog, setOpenDialog] = useState(false)
+    const [openPasswordDialog, setOpenPasswordDialog] = useState(false)
 
     const [anchorEl, setAnchorEl] = React.useState(null);
     const open = Boolean(anchorEl);
@@ -48,6 +54,7 @@ function Header(props) {
     const dispatch = useDispatch()
 
     useEffect(() => {
+        console.log("HEADER:", authHeader())
         if (user) {
             EmployeeService.get(user.employeeId)
                 .then(res => setEmployeeData(res.data))
@@ -68,6 +75,10 @@ function Header(props) {
 
     const handleDialog = () => {
         setOpenDialog(false)
+    }
+
+    const handlePasswordDialog = () => {
+        setOpenPasswordDialog(false)
     }
 
     return (
@@ -124,6 +135,13 @@ function Header(props) {
                                 <Avatar/> Профиль
                             </MenuItem>
                             <Divider/>
+                            <MenuItem onClick={() => setOpenPasswordDialog(true)}>
+                                <ListItemIcon>
+                                    <LockIcon fontSize="small"/>
+                                </ListItemIcon>
+                                Сменить пароль
+                            </MenuItem>
+                            <Divider/>
                             <MenuItem onClick={handleLogout}>
                                 <ListItemIcon>
                                     <Logout fontSize="small"/>
@@ -150,22 +168,22 @@ function Header(props) {
                         {/*    </Link>*/}
                         {/*</Grid>*/}
                         <Grid item>
-                            <Tooltip title={JSON.stringify(user) || "No data"}>
-                                <IconButton
-                                    onClick={handleClick}
-                                    size="small"
-                                    sx={{ml: 2}}
-                                    aria-controls={open ? 'account-menu' : undefined}
-                                    aria-haspopup="true"
-                                    aria-expanded={open ? 'true' : undefined}
-                                >
-                                    <Avatar sx={{
-                                        width: 32,
-                                        height: 32
-                                    }}>{employeeData ? employeeData.lastname.charAt(0) : "?"}</Avatar>
-                                </IconButton>
-                            </Tooltip>
+                            <IconButton
+                                onClick={handleClick}
+                                size="small"
+                                sx={{ml: 2}}
+                                aria-controls={open ? 'account-menu' : undefined}
+                                aria-haspopup="true"
+                                aria-expanded={open ? 'true' : undefined}
+                            >
+                                <Avatar sx={{
+                                    width: 32,
+                                    height: 32
+                                }}>{employeeData ? employeeData.lastname.charAt(0) : "?"}</Avatar>
+                            </IconButton>
                             <UserInfoDialog open={openDialog} handleDialog={handleDialog} employeeData={employeeData}/>
+                            <ChangePasswordDialog open={openPasswordDialog} handleDialog={handlePasswordDialog}
+                                                  userId={user.id}/>
                         </Grid>
                     </Grid>
                 </Toolbar>
@@ -203,6 +221,84 @@ const UserInfoDialog = (props) => {
                 <Button onClick={() => handleDialog()}>Закрыть</Button>
             </DialogActions>
         </Dialog>)
+}
+
+const ChangePasswordDialog = (props) => {
+    const {open, handleDialog, userId} = props
+    const [data, setData] = useState({
+        old_password: "",
+        new_password: ""
+    })
+
+    const [error, setError] = useState("")
+
+    useEffect(() => {
+        console.log(data)
+    }, [data])
+
+    const handleChange = (e) => {
+        const {name, value} = e.target
+        setData(state => {
+            return {...state, [name]: value}
+        })
+    }
+
+    const dispatch = useDispatch()
+
+    const handleSubmit = (e) => {
+        e.preventDefault()
+
+        authenticationService.changePassword(userId, data)
+            .then(() => {
+                dispatch(logoutAction())
+            })
+            .catch(err => {
+                console.log(err.response)
+                setError(err.response.data.message)
+            })
+    }
+
+    const handleClose = () => {
+        handleDialog()
+        setData({
+            old_password: "",
+            new_password: ""
+        })
+        setError("")
+    }
+
+    return (
+        <Dialog
+            open={open}
+            onClose={() => handleClose()}>
+            <DialogTitle>Смена пароля</DialogTitle>
+            {error && (<Alert severity={"error"} onClick={() => setError("")}>{error}</Alert>)}
+            <Box component={"form"} onSubmit={handleSubmit}>
+
+                <DialogContent>
+
+                    <Stack direction={"row"} spacing={2}>
+                        <TextField
+                            name={"old_password"}
+                            label={"Старый пароль"}
+                            value={data.old_password || ""}
+                            onChange={handleChange}
+                        />
+                        <TextField
+                            name={"new_password"}
+                            label={"Новый пароль"}
+                            value={data.new_password || ""}
+                            onChange={handleChange}
+                        />
+                    </Stack>
+                </DialogContent>
+                <DialogActions>
+                    <Button type={"submit"}>Сохранить</Button>
+                    <Button onClick={() => handleClose()}>Закрыть</Button>
+                </DialogActions>
+            </Box>
+        </Dialog>
+    )
 }
 
 Header.propTypes = {

@@ -32,7 +32,7 @@ const QuizCard = (props) => {
                     <Typography variant={"subtitle1"}>{propValue.quiz.desc ? propValue.quiz.desc : "Описание отсутсвует"}</Typography>
                 </CardContent>
             </CardActionArea>
-            {propValue.showActions ? (
+            {propValue.isAdmin ? (propValue.showActions ? (
                 <CardActions>
                     <IconButton onClick={(e) => {
                         history.push(`/quiz/edit/${propValue.quiz.id}`)
@@ -55,7 +55,7 @@ const QuizCard = (props) => {
                         <AddIcon/>
                     </IconButton>
                 </CardActions>
-            )}
+            )) : null}
         </Card>
     )
 }
@@ -63,7 +63,8 @@ const QuizCard = (props) => {
 QuizCard.propTypes ={
     quiz: PropTypes.object.isRequired,
     showActions: PropTypes.bool.isRequired,
-    getChildData:PropTypes.func
+    getChildData:PropTypes.func,
+    isAdmin: PropTypes.bool
 }
 
 export default QuizCard

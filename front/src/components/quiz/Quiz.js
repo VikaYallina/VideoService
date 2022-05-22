@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from "react";
 import { Card, ListGroup} from "react-bootstrap";
-import {Button, Divider, Pagination, PaginationItem} from "@mui/material";
+import {Button, Divider, Pagination, PaginationItem, Tooltip} from "@mui/material";
 import Question from "./Question";
 import {connect, useDispatch, useSelector} from "react-redux";
 import shuffle from "../../helpers/utils";
@@ -265,7 +265,7 @@ const Quiz = (props) => {
             quizId: propsValue.id,
             userId: user.id,
             total,
-            correct,
+            correct: Math.round(correct),
             result: res
         }
         console.log("RESULTS", payload)
@@ -312,8 +312,8 @@ const Quiz = (props) => {
                 </Card.Body>
                 <Divider/>
                 <Card.Body>
-                    <Button onClick={handleNextQ}>Следующий</Button>
-                    <Button onClick={handleResult}>Завершить тест</Button>
+                    <Button onClick={handleNextQ}>Следующий вопрос</Button>
+                    <Tooltip title={`Для прохождения требуется набрать больше ${points_borderline} баллов`}><Button onClick={handleResult}>Завершить тест</Button></Tooltip>
                 </Card.Body>
             </Card>) : (<h3>Loading</h3>)}
         </div>

@@ -71,7 +71,9 @@ const CourseCard = (props) => {
                         history.push(`/course/${propValue.course.id}/edit`)
                     }}><EditIcon/></IconButton>
                     <IconButton onClick={(e) => {
-                        // dispatch(removeLecture(course.id))
+                        httpCommon.delete(`/api/course/${propValue.course.id}`)
+                            .then(() => document.location.reload(true))
+                            .catch((err) => console.log(err.response.data))
                     }}><DeleteIcon/></IconButton>
                     <Button onClick={() => {setOpenDialog(true)}}>Отзывы</Button>
                 </CardActions>)
