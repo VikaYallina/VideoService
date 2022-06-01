@@ -4,7 +4,10 @@
   "description": "node.js rest api",
   "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "cross-env NODE_ENV=test mocha ./test/*",
+    "pretest": "cross-env NODE_ENV=test npm run db:reset",
+    "db:reset": "npx sequelize-cli db:drop && npx sequelize-cli db:create && npx sequelize-cli db:migrate && npx sequelize-cli db:seed:all --seeders-path ./seeders/",
+    "db:create:test": "cross-env NODE_ENV=test npx sequelize-cli db:create"
   },
   "keywords": [
     "nodejs",
@@ -33,6 +36,13 @@
     "pg-hstore": "^2.3.4",
     "pluralize": "^8.0.0",
     "sequelize": "^6.15.0",
+    "supertest": "^6.2.3",
     "uuid": "^8.3.2"
+  },
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "chai-http": "^2.0.1",
+    "cross-env": "^7.0.3",
+    "mocha": "^2.4.5"
   }
 }

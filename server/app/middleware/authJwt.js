@@ -4,14 +4,17 @@ const db = require('../models');
 const User = db.user;
 
 verifyToken = (req, res, next) => {
+    // Получить токен по заголовку запроса
     let token = req.headers["authorization"];
-    console.log(req.headers)
+    // Отправить клиенту ошибку, если в загаловке отсутствует токен
     if (!token){
         return res.status(403).send({
             message: "No token provided"
         })
     }
+    // Выделение самого токена
     token = token.split(' ')[1]
+    // Валидация токена
     jwt.verify(token, config.secret, (err, decoded) =>{
         if (err){
             return res.status(401).send({
@@ -19,6 +22,7 @@ verifyToken = (req, res, next) => {
             });
         }
         req.userId = decoded.id;
+        // Переход к следующему промежуточному обработчику
         next();
     })
 }

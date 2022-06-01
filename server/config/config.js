@@ -1,9 +1,9 @@
 module.exports = {
     development:{
-        HOST: "localhost",
-        USER: "postgres",
-        PASSWORD: "jessica17",
-        DB: "vkr-db",
+        host: "localhost",
+        username: "postgres",
+        password: "jessica17",
+        database: "123db",
         dialect: "postgres",
         pool: {
             max: 5,
@@ -13,10 +13,10 @@ module.exports = {
         }
     },
     test:{
-        HOST: "localhost",
-        USER: "postgres",
-        PASSWORD: "jessica17",
-        DB: "test-vkr-db",
+        host: "localhost",
+        username: "postgres",
+        password: "jessica17",
+        database: "test-vkr-db",
         dialect: "postgres",
         pool: {
             max: 5,

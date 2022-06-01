@@ -11,7 +11,7 @@ module.exports = function(app) {
         next();
     })
 
-    router.post("/",[authJwt.verifyToken],quiz.createQuiz);
+    router.post("/",quiz.createQuiz);
     router.get("/",[authJwt.verifyToken],quiz.findAll)
     router.put("/:id",[authJwt.verifyToken], quiz.update)
     router.get("/:id",[authJwt.verifyToken], quiz.findOne)
